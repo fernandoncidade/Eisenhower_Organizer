@@ -1,8 +1,8 @@
-from PySide6.QtGui import QIcon, QColor, QPalette
+from PySide6.QtGui import QIcon, QColor, QPalette, QPainterPath
 from PySide6.QtCore import Qt, QCoreApplication, QDate, QLocale, QTime, QEvent
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, 
                                QPushButton, QComboBox, QDateEdit, QCheckBox, QTimeEdit, 
-                               QSizePolicy, QTabWidget, QTabBar, QStyleOptionTab, QStyle, QStylePainter)
+                               QSizePolicy, QTabWidget, QTabBar, QProxyStyle, QStyle)
 import os
 import subprocess
 from source.utils.IconUtils import get_icon_path
@@ -63,6 +63,7 @@ def _normalize_action_text(text: str) -> str:
         return ""
 
     t = text.replace("&", "").strip()
+
     if t.endswith("..."):
         t = t[:-3].strip()
 
@@ -71,6 +72,7 @@ def _normalize_action_text(text: str) -> str:
 def _localize_menu(menu, app):
     try:
         idioma = None
+
         if hasattr(app, "gerenciador_traducao"):
             idioma = app.gerenciador_traducao.obter_idioma_atual()
 
@@ -80,12 +82,13 @@ def _localize_menu(menu, app):
         use_pt = False
 
     for action in menu.actions():
-        if action.menu():  # submenu
+        if action.menu():
             _localize_menu(action.menu(), app)
             continue
 
         txt = action.text()
         key = _normalize_action_text(txt)
+
         if use_pt and key in _COMMON_CTX_TRANSLATIONS:
             action.setText(_COMMON_CTX_TRANSLATIONS[key])
 
@@ -99,6 +102,7 @@ class FileDropLineEdit(QLineEdit):
     def dragEnterEvent(self, event):
         try:
             md = event.mimeData()
+
             if md.hasUrls():
                 event.acceptProposedAction()
 
@@ -111,6 +115,7 @@ class FileDropLineEdit(QLineEdit):
     def dragMoveEvent(self, event):
         try:
             md = event.mimeData()
+
             if md.hasUrls():
                 event.acceptProposedAction()
 
@@ -123,10 +128,13 @@ class FileDropLineEdit(QLineEdit):
     def dropEvent(self, event):
         try:
             md = event.mimeData()
+
             if md.hasUrls():
                 urls = md.urls()
+
                 if urls:
                     path = urls[0].toLocalFile()
+
                     if path:
                         try:
                             self.setText(os.path.basename(path))
@@ -170,27 +178,85 @@ class LocalizedTimeEdit(CustomTimeEdit):
 class LightActiveTabBar(QTabBar):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._active_lighten = 120
+        self._quadrant_style = None
+        self.setMouseTracking(True)
+
+    def set_quadrant_style(self, style: QProxyStyle | None):
+        self._quadrant_style = style
+
+        if style is not None:
+            self.setStyle(style)
 
     def paintEvent(self, event):
-        painter = QStylePainter(self)
-        option = QStyleOptionTab()
+        super().paintEvent(event)
 
-        for i in range(self.count()):
-            self.initStyleOption(option, i)
 
-            if option.state & QStyle.State_Selected:
-                base = option.palette.color(QPalette.Button)
+class QuadrantTabStyle(QProxyStyle):
+    _TAB_COLORS = {
+        0: QColor(200, 50, 50, 80),
+        1: QColor(230, 140, 20, 80),
+        2: QColor(230, 210, 30, 80),
+        3: QColor(50, 170, 60, 80),
+    }
 
-                if not base.isValid():
-                    base = option.palette.color(QPalette.Window)
+    def _is_light(self, color: QColor) -> bool:
+        try:
+            return color.lightnessF() >= 0.6
 
-                light = QColor(base).lighter(self._active_lighten)
-                option.palette.setColor(QPalette.Button, light)
-                option.palette.setColor(QPalette.Window, light)
+        except Exception:
+            return True
 
-            painter.drawControl(QStyle.CE_TabBarTabShape, option)
-            painter.drawControl(QStyle.CE_TabBarTabLabel, option)
+    def _border_color(self, pal: QPalette) -> QColor:
+        base = pal.color(QPalette.Window)
+
+        if self._is_light(base):
+            border = base.darker(115)
+
+        else:
+            border = base.lighter(120)
+
+        if border == base:
+            return pal.color(QPalette.Mid)
+
+        return border
+
+    def _hover_color(self, pal: QPalette) -> QColor:
+        base = pal.color(QPalette.Button)
+
+        if self._is_light(base):
+            hover = base.darker(110)
+
+        else:
+            hover = base.lighter(115)
+
+        hover.setAlpha(60)
+        return hover
+
+    def drawControl(self, element, option, painter, widget=None):
+        if element == QStyle.ControlElement.CE_TabBarTabShape:
+            super().drawControl(element, option, painter, widget)
+
+            if option.state & QStyle.StateFlag.State_Selected:
+                idx = -1
+
+                if isinstance(widget, QTabBar):
+                    idx = widget.tabAt(option.rect.center())
+
+                color = self._TAB_COLORS.get(idx)
+
+                if color:
+                    inner_rect = option.rect.adjusted(2, 2, 0, 2)
+                    radius = max(3, min(0, inner_rect.height() // 1))
+                    clip_path = QPainterPath()
+                    clip_path.addRoundedRect(inner_rect, radius, radius)
+                    painter.save()
+                    painter.setClipPath(clip_path)
+                    painter.fillRect(inner_rect, color)
+                    painter.restore()
+
+            return
+
+        super().drawControl(element, option, painter, widget)
 
 
 class AutoSwitchTabWidget(QTabWidget):
@@ -203,9 +269,25 @@ class AutoSwitchTabWidget(QTabWidget):
             self.setTabBar(self._tab_bar)
             self._tab_bar.setAcceptDrops(True)
             self._tab_bar.installEventFilter(self)
+            self._quadrant_style = QuadrantTabStyle()
+            self._tab_bar.set_quadrant_style(self._quadrant_style)
 
         except Exception:
             self._tab_bar = None
+
+    def refresh_quadrant_style(self):
+        try:
+            if self._tab_bar is None:
+                return
+
+            style = QuadrantTabStyle()
+            self._tab_bar.set_quadrant_style(style)
+            self._quadrant_style = style
+            self._tab_bar.update()
+            self.update()
+
+        except Exception:
+            pass
 
     def set_app(self, app):
         self._app = app
@@ -342,12 +424,13 @@ def init_ui(app):
     input_layout_top = QHBoxLayout()
 
     app.task_input = FileDropLineEdit(app, app)
-    app.task_input.setPlaceholderText(get_text("Adicione uma tarefa..."))
+    app.task_input.setPlaceholderText(get_text("Adicione uma tarefa ou arraste um arquivo..."))
     app.task_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
     input_layout_top.addWidget(app.task_input, 1)
 
     app.add_button = QPushButton(get_text("Adicionar Tarefa"))
     add_icon_path = get_icon_path("organizador.png")
+
     if add_icon_path:
         app.add_button.setIcon(QIcon(add_icon_path))
 
@@ -356,6 +439,7 @@ def init_ui(app):
 
     app.calendar_button = QPushButton(get_text("Calendário"))
     add_icon_path = get_icon_path("calendar.png")
+
     if add_icon_path:
         app.calendar_button.setIcon(QIcon(add_icon_path))
 
@@ -378,6 +462,7 @@ def init_ui(app):
         try:
             if hasattr(app, "gerenciador_traducao"):
                 idioma = app.gerenciador_traducao.obter_idioma_atual()
+
                 if idioma and idioma.startswith("pt"):
                     locale = QLocale(QLocale.Portuguese, QLocale.Brazil)
 
@@ -389,6 +474,7 @@ def init_ui(app):
             locale = QLocale.system()
 
         app.date_input.setLocale(locale)
+
         try:
             fmt = locale.dateFormat(QLocale.ShortFormat)
 

@@ -1,6 +1,6 @@
 import os
 from PySide6.QtCore import QCoreApplication, Qt, QTimer, QEvent
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QPushButton, QComboBox
 from PySide6.QtGui import QFont, QColor, QPalette
 from source.utils.IconUtils import get_icon_path
 from source.utils.CaminhoPersistenteUtils import obter_caminho_persistente
@@ -157,6 +157,33 @@ class EisenhowerMatrixApp(QMainWindow):
             except Exception:
                 pass
 
+        def _apply_input_bg(widget, color):
+            if widget is None:
+                return
+
+            try:
+                pal = widget.palette()
+                pal.setColor(QPalette.Base, color)
+                pal.setColor(QPalette.AlternateBase, color)
+
+                if isinstance(widget, QComboBox):
+                    pal.setColor(QPalette.Button, color)
+                    pal.setColor(QPalette.Window, color)
+
+                widget.setPalette(pal)
+
+                if isinstance(widget, QComboBox):
+                    view = widget.view()
+
+                    if view is not None:
+                        view_pal = view.palette()
+                        view_pal.setColor(QPalette.Base, color)
+                        view_pal.setColor(QPalette.AlternateBase, color)
+                        view.setPalette(view_pal)
+
+            except Exception:
+                pass
+
         try:
             base_color = self.palette().color(QPalette.Window)
             main_color = QColor(base_color).lighter(120)
@@ -200,14 +227,14 @@ class EisenhowerMatrixApp(QMainWindow):
                 "time_input",
                 "quadrant_selector",
             ):
-                _apply_list_bg(getattr(self, input_name, None), list_color)
+                _apply_input_bg(getattr(self, input_name, None), list_color)
 
             try:
                 panel = self.calendar_pane.calendar_panel if hasattr(self, "calendar_pane") and self.calendar_pane else None
                 _apply_window_bg(panel, main_color)
                 _apply_window_bg(getattr(panel, "tasks_label", None), main_color)
                 _apply_list_bg(getattr(panel, "tasks_list", None), list_color)
-                _apply_list_bg(getattr(panel, "filter_combo", None), list_color)
+                _apply_input_bg(getattr(panel, "filter_combo", None), list_color)
 
             except Exception:
                 pass
@@ -220,6 +247,9 @@ class EisenhowerMatrixApp(QMainWindow):
 
                     if tab_bar is not None:
                         tab_bar.update()
+
+                    if hasattr(tabs, "refresh_quadrant_style"):
+                        tabs.refresh_quadrant_style()
 
             except Exception:
                 pass

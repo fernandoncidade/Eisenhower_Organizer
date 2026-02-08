@@ -8,8 +8,8 @@
         <translation>Eisenhower Matrix - Task Organizer</translation>
     </message>
     <message>
-        <source>Adicione uma tarefa...</source>
-        <translation>Add a task...</translation>
+        <source>Adicione uma tarefa ou arraste um arquivo...</source>
+        <translation>Add a task or drag a file...</translation>
     </message>
     <message>
         <source>Vincular data</source>

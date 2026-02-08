@@ -2,13 +2,14 @@ from PySide6.QtCore import QCoreApplication
 from source.utils.LogManager import LogManager
 from source.InterfaceCore.incore_11_atualizar_itens_tarefas import atualizar_itens_tarefas
 logger = LogManager.get_logger()
+
 def get_text(text):
     return QCoreApplication.translate("InterfaceGrafica", text)
 
 def atualizar_textos(app):
     try:
         app.setWindowTitle(get_text("Matriz de Eisenhower - Organizador de Tarefas"))
-        app.task_input.setPlaceholderText(get_text("Adicione uma tarefa..."))
+        app.task_input.setPlaceholderText(get_text("Adicione uma tarefa ou arraste um arquivo..."))
         app.add_button.setText(get_text("Adicionar Tarefa"))
         app.calendar_button.setText(get_text("Calendário"))
         app.date_checkbox.setText(get_text("Vincular data"))

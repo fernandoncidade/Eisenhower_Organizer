@@ -1,3 +1,28 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.9.0
+Data: 9 de fevereiro de 2026
+
+Principais novidades:
+- Reactividade ao tema do sistema aprimorada: o aplicativo reaplica cores e contrastes automaticamente ao detectar mudança de tema (claro/escuro) do Windows, garantindo melhor legibilidade.
+- Abertura automática de abas ao arrastar: ao posicionar o cursor sobre o título de uma aba durante um arraste, a aba é aberta automaticamente para facilitar mover tarefas entre quadrantes.
+- Melhoria no arrastar e soltar de arquivos: arrastar arquivos para o campo de entrada agora preenche o nome, mostra o caminho como dica e preserva a seleção durante movimentos em lote.
+- Entrada de horário mais confortável: o seletor de horário permite navegação contínua por minutos, tornando mais rápido ajustar horários.
+- Localidade e idioma dinâmicos: formatos de data/hora e textos da interface atualizam imediatamente ao trocar o idioma, inclusive nos popups de calendário e seletores.
+- Calendar pane refinado: lista global do calendário, filtros e cabeçalho seguem o esquema visual atualizado e mantêm boa visibilidade em temas claros e escuros.
+
+Correções e ajustes:
+- Redução significativa de flicker ao atualizar badges, contadores e ao mover/editar tarefas.
+- Operações de arrastar/soltar reforçadas para evitar duplicação ou perda de tarefas e preservar seleção em ações em lote.
+- Ordenação e agrupamento por faixa horária corrigidos; cabeçalhos de horário vazios são removidos automaticamente.
+- Context menus e atalhos localizados para oferecer rótulos em Português quando aplicável.
+- Melhoria na abertura de arquivos vinculados com fallback mais robusto e mensagens de erro amigáveis quando o arquivo não é encontrado.
+- Ajustes na aplicação do formato de data para usar ano com quatro dígitos quando apropriado.
+
+Observações:
+- Dados existentes permanecem compatíveis e preservados; nenhuma ação é necessária do usuário.
+- Caso queira mais contraste, as opções de ajuste de clareamento/escurecimento continuam disponíveis para personalização visual.
+
+______________________________
+
 NOTAS DE LANÇAMENTO: Versão 0.1.8.0
 Data: 8 de fevereiro de 2026
 

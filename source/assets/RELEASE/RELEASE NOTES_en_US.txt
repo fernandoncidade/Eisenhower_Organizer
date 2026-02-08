@@ -1,3 +1,28 @@
+RELEASE NOTES: Version 0.1.9.0
+Date: February 9, 2026
+
+Main highlights:
+- Improved system theme reactivity: the app reapplies colors and contrasts automatically when it detects a change in the Windows theme (light/dark), ensuring better legibility.
+- Automatic tab opening on drag: hovering the cursor over a tab title during a drag opens the tab automatically to make it easier to move tasks between quadrants.
+- Improved file drag-and-drop: dragging files to the input field now fills the name, shows the path as a tooltip, and preserves selection during batch moves.
+- More comfortable time input: the time selector allows continuous minute navigation, making it faster to adjust times.
+- Dynamic locale and language: date/time formats and interface texts update immediately when switching the language, including calendar popups and selectors.
+- Refined calendar pane: the global calendar list, filters and header follow the updated visual scheme and maintain good visibility in both light and dark themes.
+
+Fixes and adjustments:
+- Significant reduction of flicker when updating badges, counters and when moving/editing tasks.
+- Drag-and-drop operations reinforced to prevent duplication or loss of tasks and to preserve selection in batch actions.
+- Sorting and grouping by time slot fixed; empty time headers are removed automatically.
+- Context menus and shortcuts localized to provide labels in Portuguese when applicable.
+- Improved opening of linked files with more robust fallbacks and user-friendly error messages when a file is not found.
+- Adjustments to date format application to use a four-digit year where appropriate.
+
+Notes:
+- Existing data remains compatible and preserved; no user action is required.
+- If you prefer more contrast, the lightening/darkening adjustment options remain available for visual customization.
+
+______________________________
+
 NOTES RELEASE: Version 0.1.8.0
 Date: February 8, 2026
 

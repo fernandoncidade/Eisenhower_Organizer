@@ -1,9 +1,8 @@
 import sys
 from source.utils.LogManager import LogManager
 # from source.utils.TrialManager import TrialManager
-
-LogManager.enable_startup_diagnostics()
-LogManager.install_exception_hook()
+# LogManager.enable_startup_diagnostics()
+# LogManager.install_exception_hook()
 logger = LogManager.get_logger()
 
 if __name__ == "__main__":
@@ -27,5 +26,5 @@ if __name__ == "__main__":
 
     except Exception as e:
         logger.critical(f"Erro fatal ao iniciar aplicação: {e}", exc_info=True)
-        LogManager.close_startup_diagnostics()
+        # LogManager.close_startup_diagnostics()
         sys.exit(1)

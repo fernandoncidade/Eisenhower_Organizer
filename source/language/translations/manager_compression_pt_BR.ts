@@ -8,8 +8,8 @@
         <translation>Matriz de Eisenhower - Organizador de Tarefas</translation>
     </message>
     <message>
-        <source>Adicione uma tarefa...</source>
-        <translation>Adicione uma tarefa...</translation>
+        <source>Adicione uma tarefa ou arraste um arquivo...</source>
+        <translation>Adicione uma tarefa ou arraste um arquivo...</translation>
     </message>
     <message>
         <source>Vincular data</source>

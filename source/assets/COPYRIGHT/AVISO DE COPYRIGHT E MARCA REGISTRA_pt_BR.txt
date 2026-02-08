@@ -1,5 +1,5 @@
 AVISO DE COPYRIGHT E MARCA REGISTRADA — EISENHOWER ORGANIZER
-Versão 0.1.8.0, 8 de fevereiro de 2026
+Versão 0.1.9.0, 9 de fevereiro de 2026
 ======================================
 
 Copyright (C) 2025–2026 Fernando Nillsson Cidade. Todos os direitos reservados. 
