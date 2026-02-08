@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, QPoint, QItemSelectionModel
 from PySide6.QtWidgets import QListWidget, QAbstractItemView, QLabel, QApplication
-from PySide6.QtGui import QDrag, QFont, QPalette, QColor
+from PySide6.QtGui import QDrag, QFont, QPalette, QColor, QPixmap, QPainter, QCursor
 from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 
@@ -126,6 +126,44 @@ class TaskListWidget(QListWidget):
         except Exception:
             pass
 
+    def _build_drag_pixmap(self, items):
+        try:
+            rects = []
+            for it in items:
+                if it is None:
+                    continue
+
+                r = self.visualItemRect(it)
+                if r.isValid():
+                    rects.append(r)
+
+            if not rects:
+                return None, None
+
+            union = rects[0]
+            for r in rects[1:]:
+                union = union.united(r)
+
+            pixmap = QPixmap(union.size())
+            pixmap.fill(Qt.transparent)
+
+            painter = QPainter(pixmap)
+            painter.setOpacity(0.6)
+
+            for it in items:
+                r = self.visualItemRect(it)
+                if not r.isValid():
+                    continue
+
+                item_pix = self.viewport().grab(r)
+                painter.drawPixmap(r.topLeft() - union.topLeft(), item_pix)
+
+            painter.end()
+            return pixmap, union
+
+        except Exception:
+            return None, None
+
     def mouseMoveEvent(self, event):
         try:
             item = self.itemAt(event.pos())
@@ -230,6 +268,25 @@ class TaskListWidget(QListWidget):
 
             drag = QDrag(self)
             drag.setMimeData(mime)
+
+            pixmap, union = self._build_drag_pixmap(self.selectedItems())
+            if pixmap is not None:
+                drag.setPixmap(pixmap)
+                try:
+                    hotspot = None
+                    if self._drag_start_pos is not None and union is not None:
+                        hotspot = self._drag_start_pos - union.topLeft()
+
+                    else:
+                        vp_pos = self.viewport().mapFromGlobal(QCursor.pos())
+                        if union is not None:
+                            hotspot = vp_pos - union.topLeft()
+
+                    if hotspot is not None:
+                        drag.setHotSpot(hotspot)
+
+                except Exception:
+                    pass
 
             drag.exec(Qt.MoveAction | Qt.CopyAction)
 

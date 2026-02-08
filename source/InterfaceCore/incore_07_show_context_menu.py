@@ -690,15 +690,67 @@ def mostrar_menu_contexto(app, point, list_widget):
                     if reply != QMessageBox.Yes:
                         return
 
-                for it in selected_items:
-                    src_list_rem, src_item_rem, remove_calendar_item = _resolve_item(it)
-                    removed = app.remove_task(src_item_rem, src_list_rem, confirm=False)
-                    if not removed:
-                        continue
+                is_calendar_list = False
+                try:
+                    for it in selected_items:
+                        d = it.data(Qt.UserRole)
+                        if isinstance(d, dict) and d.get("category"):
+                            is_calendar_list = True
+                            break
 
-                    if remove_calendar_item:
+                except Exception:
+                    is_calendar_list = False
+
+                try:
+                    setattr(app, "_suppress_calendar_update", True)
+
+                except Exception:
+                    pass
+
+                if is_calendar_list:
+                    tasks_to_remove = []
+                    for it in selected_items:
                         try:
-                            list_widget.takeItem(list_widget.row(it))
+                            d = it.data(Qt.UserRole)
+                            if isinstance(d, dict) and d.get("category"):
+                                tasks_to_remove.append(d)
+
+                        except Exception:
+                            continue
+
+                    seen = set()
+                    for task in tasks_to_remove:
+                        try:
+                            key = (
+                                str(task.get("text") or "").strip(),
+                                str(task.get("date") or ""),
+                                str(task.get("time") or ""),
+                                str(task.get("category") or ""),
+                                bool(task.get("completed")),
+                            )
+                            if key in seen:
+                                continue
+
+                            seen.add(key)
+
+                        except Exception:
+                            pass
+
+                        src_list_rem, src_item_rem = _find_source_item_for_calendar(app, task)
+                        if src_list_rem is None or src_item_rem is None:
+                            continue
+
+                        try:
+                            app.remove_task(src_item_rem, src_list_rem, confirm=False)
+
+                        except Exception:
+                            pass
+
+                else:
+                    for it in selected_items:
+                        src_list_rem, src_item_rem, _ = _resolve_item(it)
+                        try:
+                            app.remove_task(src_item_rem, src_list_rem, confirm=False)
 
                         except Exception:
                             pass
@@ -712,6 +764,12 @@ def mostrar_menu_contexto(app, point, list_widget):
                 try:
                     if hasattr(app, "calendar_pane") and app.calendar_pane:
                         app.calendar_pane.calendar_panel.update_task_list()
+
+                except Exception:
+                    pass
+
+                try:
+                    setattr(app, "_suppress_calendar_update", False)
 
                 except Exception:
                     pass

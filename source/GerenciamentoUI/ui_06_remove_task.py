@@ -143,8 +143,9 @@ def remove_task(app, item, list_widget, confirm: bool = True) -> bool:
             pass
 
         try:
-            if hasattr(app, "calendar_pane") and app.calendar_pane:
-                app.calendar_pane.calendar_panel.update_task_list()
+            if not getattr(app, "_suppress_calendar_update", False):
+                if hasattr(app, "calendar_pane") and app.calendar_pane:
+                    app.calendar_pane.calendar_panel.update_task_list()
 
         except Exception:
             pass

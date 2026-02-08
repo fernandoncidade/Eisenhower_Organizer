@@ -1,3 +1,22 @@
+RELEASE NOTES: Version 0.1.5.0
+Date: February 5, 2026
+
+Main highlights:
+- Enhanced multiple selection: you can now select multiple tasks with CTRL + click or by clicking, holding and dragging over the calendar task list.
+- Batch actions in the context menu: the "Move to another quadrant" and "Remove Task" options apply to multiple selected tasks.
+- Safe removal and moving: batch operations have been reinforced to prevent errors and preserve selection during and after the action.
+- Optimized calendar update: calendar counters and highlights are updated in a consolidated way at the end of batch operations, reducing flicker and improving performance.
+
+Fixes and adjustments:
+- Fixed an issue that prevented removing multiple tasks when some items had already been removed or were inconsistent.
+- The selection rectangle appears only during dragging and the current selection is not lost when clicking selected items.
+- Clearer and more consistent confirmations and batch removal messages.
+
+Notes:
+- Improved experience when selecting, moving, and removing multiple tasks at once; a more robust and predictable workflow for the end user.
+
+______________________________
+
 RELEASE NOTES: Version 0.1.4.0
 Date: February 4, 2026
 

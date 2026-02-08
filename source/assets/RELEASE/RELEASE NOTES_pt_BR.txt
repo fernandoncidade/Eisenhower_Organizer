@@ -1,3 +1,22 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.5.0
+Data: 5 de fevereiro de 2026
+
+Principais novidades:
+- Seleção múltipla aprimorada: agora é possível selecionar várias tarefas com CTRL + clique ou clicando, segurando e arrastando sobre a lista de tarefas do calendário.
+- Ações em lote no menu de contexto: as opções "Mover para outro quadrante" e "Remover Tarefa" aplicam-se às tarefas múltiplas selecionadas.
+- Remoção e movimentação seguras: operações em lote foram reforçadas para evitar erros e manter a seleção durante e após a ação.
+- Atualização do calendário otimizada: contadores e destaques do calendário são atualizados de forma consolidada ao final das operações em lote, reduzindo flicker e melhorando desempenho.
+
+Correções e ajustes:
+- Corrigido problema que impedia a remoção de múltiplas tarefas quando alguns itens já haviam sido removidos ou estavam inconsistentes.
+- O retângulo de seleção aparece apenas durante o arraste e a seleção atual não é perdida ao clicar em itens selecionados.
+- Confirmações e mensagens de remoção em lote mais claras e consistentes.
+
+Observações:
+- Melhor experiência ao selecionar, mover e remover várias tarefas ao mesmo tempo; fluxo mais robusto e previsível para o usuário final.
+
+______________________________
+
 NOTAS DE LANÇAMENTO: Versão 0.1.4.0
 Data: 4 de fevereiro de 2026
 

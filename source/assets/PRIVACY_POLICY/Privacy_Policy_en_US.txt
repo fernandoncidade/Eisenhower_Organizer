@@ -1,6 +1,6 @@
 Privacy Policy - EISENHOWER ORGANIZER
-Last updated: February 4, 2026
-Version: 0.1.4.0
+Last updated: February 5, 2026
+Version: 0.1.5.0
 
 This Policy describes how EISENHOWER ORGANIZER (“Software”) handles user information. The Software is designed to operate locally, without telemetry collection.
 
