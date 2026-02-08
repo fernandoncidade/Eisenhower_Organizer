@@ -1,3 +1,23 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.6.0
+Data: 6 de fevereiro de 2026
+
+Principais novidades:
+- Interface mais consistente: diálogos de aviso e confirmação foram aprimorados para guiar o usuário em ações importantes.
+- Exclusão precisa: agora a remoção de tarefas idênticas respeita a prioridade, evitando apagar o item errado.
+- Melhorias de modularidade visíveis ao uso: ações como mover, editar e remover ficaram mais rápidas e previsíveis.
+- Operações em lote mais seguras: mover e remover múltiplas tarefas mantém a seleção e evita inconsistências.
+
+Correções e ajustes:
+- Corrigido comportamento que ocasionalmente duplicava ou perdia tarefas ao alterar prioridade ou data.
+- Mensagens de confirmação e informações exibidas de forma mais clara e amigável.
+- Atualizações do calendário consolidam mudanças ao final das operações, reduzindo flicker e melhorando a resposta visual.
+
+Observações:
+- Experiência mais estável ao editar, mover ou remover tarefas; fluxos em lote e ações individuais seguem mais previsíveis.
+- Nenhuma mudança é necessária nas suas tarefas existentes — os dados permanecem locais e compatíveis.
+
+______________________________
+
 NOTAS DE LANÇAMENTO: Versão 0.1.5.0
 Data: 5 de fevereiro de 2026
 

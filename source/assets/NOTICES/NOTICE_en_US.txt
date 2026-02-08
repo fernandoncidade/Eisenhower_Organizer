@@ -1,4 +1,4 @@
-Version 0.1.5.0, February 5, 2026
+Version 0.1.6.0, February 6, 2026
 
 Third-Party Software Licenses and Attributions Notice
 

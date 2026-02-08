@@ -34,3 +34,19 @@ try:
 
 except Exception as e:
     logger.error(f"Erro ao carregar arquivos de licença: {e}", exc_info=True)
+
+
+class OpcoesSobre:
+    SITE_LICENSES = SITE_LICENSES
+    LICENSE_TEXT_PT_BR = LICENSE_TEXT_PT_BR
+    LICENSE_TEXT_EN_US = LICENSE_TEXT_EN_US
+    NOTICE_TEXT_PT_BR = NOTICE_TEXT_PT_BR
+    NOTICE_TEXT_EN_US = NOTICE_TEXT_EN_US
+    ABOUT_TEXT_PT_BR = ABOUT_TEXT_PT_BR
+    ABOUT_TEXT_EN_US = ABOUT_TEXT_EN_US
+    Privacy_Policy_pt_BR = Privacy_Policy_pt_BR
+    Privacy_Policy_en_US = Privacy_Policy_en_US
+    History_APP_pt_BR = History_APP_pt_BR
+    History_APP_en_US = History_APP_en_US
+    RELEASE_NOTES_pt_BR = RELEASE_NOTES_pt_BR
+    RELEASE_NOTES_en_US = RELEASE_NOTES_en_US

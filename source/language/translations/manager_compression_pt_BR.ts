@@ -435,5 +435,41 @@
       <source>Deseja remover as tarefas selecionadas?</source>
       <translation>Deseja remover as tarefas selecionadas?</translation>
     </message>
+    <message>
+      <source>Prioridade:</source>
+      <translation>Prioridade:</translation>
+    </message>
+    <message>
+      <source>Não foi possível remover todas as tarefas selecionadas.</source>
+      <translation>Não foi possível remover todas as tarefas selecionadas.</translation>
+    </message>
+    <message>
+      <source>Tarefa(s) removida(s) com sucesso.</source>
+      <translation>Tarefa(s) removida(s) com sucesso.</translation>
+    </message>
+    <message>
+      <source>Tarefa removida com sucesso.</source>
+      <translation>Tarefa removida com sucesso.</translation>
+    </message>
+    <message>
+      <source>Não foi possível remover a tarefa selecionada.</source>
+      <translation>Não foi possível remover a tarefa selecionada.</translation>
+    </message>
+    <message>
+      <source>Nenhuma tarefa válida foi selecionada.</source>
+      <translation>Nenhuma tarefa válida foi selecionada.</translation>
+    </message>
+    <message>
+      <source>Remoção cancelada.</source>
+      <translation>Remoção cancelada.</translation>
+    </message>
+    <message>
+      <source>Não foi possível remover todas as tarefas deste dia.</source>
+      <translation>Não foi possível remover todas as tarefas deste dia.</translation>
+    </message>
+    <message>
+      <source>Tarefa não encontrada.</source>
+      <translation>Tarefa não encontrada.</translation>
+    </message>
 </context>
 </TS>

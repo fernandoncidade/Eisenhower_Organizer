@@ -5,25 +5,29 @@ from PySide6.QtGui import QFont
 from source.utils.IconUtils import get_icon_path
 from source.utils.CaminhoPersistenteUtils import obter_caminho_persistente
 from source.language.tr_01_gerenciadorTraducao import GerenciadorTraducao
-from source.InterfaceCore.incore_01_initUI import init_ui as core_init_ui
-from source.InterfaceCore.incore_02_add_placeholder import add_placeholder as core_add_placeholder
-from source.InterfaceCore.incore_03_criar_menu_configuracoes import criar_menu_configuracoes as core_criar_menu
-from source.InterfaceCore.incore_04_definir_idioma import definir_idioma as core_definir_idioma
-from source.InterfaceCore.incore_05_atualizar_textos import atualizar_textos as core_atualizar_textos
-from source.InterfaceCore.incore_06_atualizar_placeholders import atualizar_placeholders as core_atualizar_placeholders
-from source.InterfaceCore.incore_07_show_context_menu import show_context_menu as core_show_context_menu
-from source.InterfaceCore.incore_08_exibir_sobre import exibir_sobre as core_exibir_sobre
-from source.InterfaceCore.incore_09_arquivo import novo as arquivo_novo, abrir_arquivo as arquivo_abrir, salvar_como as arquivo_salvar, limpar_tudo as arquivo_limpar, sair as arquivo_sair
-from source.GerenciamentoUI.ui_03_add_task import add_task as ui_add_task
-from source.GerenciamentoUI.ui_04_handle_item_checked import handle_item_checked as ui_handle_item_checked
-from source.GerenciamentoUI.ui_05_move_item_between_lists import move_item_between_lists as ui_move_item_between_lists
-from source.GerenciamentoUI.ui_06_remove_task import remove_task as ui_remove_task
-from source.GerenciamentoUI.ui_07_save_tasks import save_tasks as ui_save_tasks
-from source.GerenciamentoUI.ui_08_load_tasks import load_tasks as ui_load_tasks
-from source.GerenciamentoUI.ui_09_Calendar import Calendar
-from source.GerenciamentoUI.ui_10_edit_task import edit_task_datetime as ui_edit_task_datetime
-from source.GerenciamentoUI.ui_10_edit_task import move_task_to_quadrant as ui_move_task_to_quadrant
-from source.InterfaceCore.incore_13_prioridade_display import prioridade_para_texto
+from source.InterfaceCore import (
+    init_ui as core_init_ui, 
+    add_placeholder as core_add_placeholder, 
+    criar_menu_configuracoes as core_criar_menu, 
+    definir_idioma as core_definir_idioma, 
+    atualizar_textos as core_atualizar_textos, 
+    atualizar_placeholders as core_atualizar_placeholders, 
+    show_context_menu as core_show_context_menu, 
+    exibir_sobre as core_exibir_sobre, 
+    Arquivo,
+    prioridade_para_texto
+)
+from source.GerenciamentoUI import (
+    add_task as ui_add_task, 
+    handle_item_checked as ui_handle_item_checked, 
+    move_item_between_lists as ui_move_item_between_lists, 
+    remove_task as ui_remove_task, 
+    save_tasks as ui_save_tasks, 
+    load_tasks as ui_load_tasks, 
+    Calendar, 
+    edit_task_datetime as ui_edit_task_datetime, 
+    move_task_to_quadrant as ui_move_task_to_quadrant
+)
 from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 
@@ -47,6 +51,7 @@ class EisenhowerMatrixApp(QMainWindow):
             self.setWindowIcon(QIcon(icon_path))
 
         self.tasks_path = os.path.join(obter_caminho_persistente(), "tasks.json")
+        self.arquivo = Arquivo(self)
 
         self.initUI()
         self.load_tasks()
@@ -427,19 +432,19 @@ class EisenhowerMatrixApp(QMainWindow):
             logger.error(f"Erro ao abrir calendário: {e}", exc_info=True)
 
     def nova_sessao(self):
-        arquivo_novo(self)
+        self.arquivo.novo()
 
     def abrir_arquivo(self):
-        arquivo_abrir(self)
+        self.arquivo.abrir_arquivo()
 
     def salvar_como(self):
-        arquivo_salvar(self)
+        self.arquivo.salvar_como()
 
     def limpar_tudo(self):
-        arquivo_limpar(self)
+        self.arquivo.limpar_tudo()
 
     def sair_app(self):
-        arquivo_sair(self)
+        self.arquivo.sair()
 
     def edit_task_datetime(self, item, list_widget):
         ui_edit_task_datetime(self, item, list_widget)

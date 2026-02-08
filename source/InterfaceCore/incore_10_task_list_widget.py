@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, QPoint, QItemSelectionModel
 from PySide6.QtWidgets import QListWidget, QAbstractItemView, QLabel, QApplication
-from PySide6.QtGui import QDrag, QFont, QPalette, QColor, QPixmap, QPainter, QCursor
+from PySide6.QtGui import QDrag, QPalette, QColor, QPixmap, QPainter, QCursor
 from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 

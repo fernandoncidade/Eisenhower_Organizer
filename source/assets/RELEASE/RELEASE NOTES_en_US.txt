@@ -1,3 +1,23 @@
+RELEASE NOTES: Version 0.1.6.0
+Date: February 6, 2026
+
+Main highlights:
+- More consistent interface: warning and confirmation dialogs have been improved to guide the user in important actions.
+- Precise deletion: removal of identical tasks now respects priority, preventing the wrong item from being deleted.
+- Modularity improvements visible in use: actions such as move, edit and remove are faster and more predictable.
+- Safer batch operations: moving and removing multiple tasks preserves the selection and avoids inconsistencies.
+
+Fixes and tweaks:
+- Fixed behavior that occasionally duplicated or lost tasks when changing priority or date.
+- Confirmation and informational messages are displayed more clearly and user-friendly.
+- Calendar updates consolidate changes at the end of operations, reducing flicker and improving visual responsiveness.
+
+Notes:
+- More stable experience when editing, moving or removing tasks; batch flows and individual actions are more predictable.
+- No changes are required to your existing tasks — data remains local and compatible.
+
+______________________________
+
 RELEASE NOTES: Version 0.1.5.0
 Date: February 5, 2026
 
