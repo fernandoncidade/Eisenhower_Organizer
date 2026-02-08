@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QVBoxLayout, QComboBox, QListWidget, QCheckBox, QLabel, QHBoxLayout, QAbstractItemView, QWidget, QSizePolicy
 from PySide6.QtCore import Qt, QDate, QCoreApplication, QSize
+from PySide6.QtGui import QPalette, QColor
 from .ui_10_BadgeCalendarWidget import BadgeCalendarWidget
 from .ui_11_NativeLineEditFrame import NativeLineEditFrame
 from .ui_12_CalendarDialog import CalendarDialog
@@ -19,9 +20,27 @@ class CalendarPanel(QWidget):
             self._date_format = app.date_input.displayFormat() if hasattr(app, "date_input") else "dd/MM/yyyy"
             self._highlighted_dates = set()
 
+            def _apply_window_bg(widget, color):
+                try:
+                    pal = widget.palette()
+                    pal.setColor(QPalette.Window, color)
+                    widget.setAutoFillBackground(True)
+                    widget.setPalette(pal)
+
+                except Exception:
+                    pass
+
             main_layout = QVBoxLayout(self)
             main_layout.setContentsMargins(5, 1, 5, 9)
             main_layout.setSpacing(6)
+
+            try:
+                base_color = self.app.palette().color(QPalette.Window)
+                header_color = QColor(base_color).lighter(120)
+                _apply_window_bg(self, header_color)
+
+            except Exception:
+                pass
 
             self.calendar = BadgeCalendarWidget(self)
             initial_date = app.date_input.date() if hasattr(app, "date_input") else QDate.currentDate()
@@ -56,6 +75,15 @@ class CalendarPanel(QWidget):
             main_layout.addLayout(controls_layout)
 
             self.tasks_label = QLabel(get_text("Lista Global de Tarefas:"), self)
+
+            try:
+                base_color = self.app.palette().color(QPalette.Window)
+                header_color = QColor(base_color).lighter(120)
+                _apply_window_bg(self.tasks_label, header_color)
+
+            except Exception:
+                pass
+
             main_layout.addWidget(self.tasks_label)
 
             self.tasks_list = QListWidget(self)
@@ -68,6 +96,23 @@ class CalendarPanel(QWidget):
             self.tasks_list.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
             self.tasks_list.setContextMenuPolicy(Qt.CustomContextMenu)
             self.tasks_list.customContextMenuRequested.connect(lambda pt: show_context_menu(self.app, pt, self.tasks_list))
+
+            try:
+                base_color = self.app.palette().color(QPalette.Window)
+                pal = self.tasks_list.palette()
+                pal.setColor(QPalette.Base, base_color)
+                pal.setColor(QPalette.AlternateBase, base_color)
+                self.tasks_list.setPalette(pal)
+                self.tasks_list.setAutoFillBackground(True)
+
+                try:
+                    self.tasks_list.viewport().setAutoFillBackground(True)
+
+                except Exception:
+                    pass
+
+            except Exception:
+                pass
 
             try:
                 self.tasks_list.itemDoubleClicked.connect(lambda item: CalendarDialog._open_linked_file(self, item))

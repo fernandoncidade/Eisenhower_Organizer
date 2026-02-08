@@ -1,3 +1,27 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.8.0
+Data: 8 de fevereiro de 2026
+
+Principais novidades:
+- Atualização dinâmica do tema: o aplicativo reaplica automaticamente as cores nativas quando o tema do Windows (claro/escuro) é alterado, mantendo contraste e legibilidade.
+- Harmonização visual nativa: o fundo principal do layout ficou um tom levemente mais claro, enquanto as áreas de listas e campos de entrada receberam um tom nativo mais escuro para melhor contraste.
+- Destaque de aba ativa ajustado: a aba selecionada agora recebe um preenchimento ligeiramente mais claro por padrão e, no modo claro do sistema, a aba ativa fica propositalmente mais escura para maior visibilidade.
+- Arrastar e soltar aprimorado: ao posicionar o cursor sobre o título de uma aba durante um arraste, a aba é aberta automaticamente; soltar sobre a aba encaminha a(s) tarefa(s) para o quadrante correspondente.
+- Inputs integrados ao tema: campos como texto da tarefa, data, horário, seletor de prioridade e filtros agora usam o mesmo tom mais escuro das listas, garantindo consistência visual.
+- Calendar pane: lista global do calendário e seu cabeçalho seguem o novo esquema de cores nativas, com badges e destaques mantendo boa visibilidade em temas claros e escuros.
+
+Correções e ajustes:
+- Melhor compatibilidade com diferentes configurações do Qt/ambiente para evitar falhas na inicialização em alguns sistemas.
+- Redução de flicker e melhorias de estabilidade ao atualizar badges, contadores e ao mover/editar tarefas.
+- Operações de arrastar/soltar reforçadas para preservar seleção e evitar duplicação ou perda de tarefas durante movimentos entre quadrantes.
+- Ajustes na aplicação de locale para data/horário e atualização imediata de textos ao trocar o idioma em tempo de execução.
+- Pequenos refinamentos de usabilidade: placeholders mais robustos, ícones em botões principais e tooltips enriquecidos para pré-visualização rápida de tarefas.
+
+Observações:
+- Os dados existentes permanecem compatíveis e preservados; nenhuma ação é necessária por parte do usuário.
+- Caso deseje ajuste fino do contraste (mais claro/mais escuro), é possível selecionar valores de clareamento/escurecimento para personalizar a aparência.
+
+______________________________
+
 NOTAS DE LANÇAMENTO: Versão 0.1.7.0
 Data: 7 de fevereiro de 2026
 

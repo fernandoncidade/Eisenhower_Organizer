@@ -1,3 +1,27 @@
+NOTES RELEASE: Version 0.1.8.0
+Date: February 8, 2026
+
+Main highlights:
+- Dynamic theme update: the application reapplies native colors automatically when the Windows theme (light/dark) changes, maintaining contrast and legibility.
+- Native visual harmonization: the main layout background is a slightly lighter tone, while list areas and input fields use a slightly darker native tone for better contrast.
+- Active tab highlight adjusted: the selected tab now receives a slightly lighter fill by default and, in the system light mode, the active tab becomes intentionally darker for improved visibility.
+- Improved drag and drop: when positioning the cursor over a tab title during a drag, the tab opens automatically; dropping on the tab forwards the task(s) to the corresponding quadrant.
+- Inputs integrated with the theme: fields such as task text, date, time, priority selector and filters now use the same darker tone as the lists, ensuring visual consistency.
+- Calendar pane: the global calendar list and its header follow the new native color scheme, with badges and highlights keeping good visibility in both light and dark themes.
+
+Fixes and adjustments:
+- Better compatibility with different Qt/environment configurations to avoid startup failures on some systems.
+- Reduced flicker and stability improvements when updating badges, counters and when moving/editing tasks.
+- Reinforced drag-and-drop operations to preserve selection and avoid duplication or loss of tasks during movements between quadrants.
+- Adjustments to locale application for date/time and immediate text updates when changing the language at runtime.
+- Small usability refinements: more robust placeholders, icons on main buttons and enriched tooltips for quick task preview.
+
+Notes:
+- Existing data remains compatible and preserved; no action is required from the user.
+- If you want fine tuning of the contrast (lighter/darker), it is possible to choose lightening/darkening values to customize the appearance.
+
+______________________________
+
 RELEASE NOTES: Version 0.1.7.0
 Date: February 7, 2026
 

@@ -26,6 +26,28 @@ class TaskListWidget(QListWidget):
         self.setDragDropMode(QAbstractItemView.DragDrop)
 
         try:
+            ref_palette = None
+
+            if hasattr(self._app, "palette"):
+                ref_palette = self._app.palette()
+
+            elif self.window() is not None:
+                ref_palette = self.window().palette()
+
+            if ref_palette is not None:
+                pal = self.palette()
+                window_color = ref_palette.color(QPalette.Window)
+                pal.setColor(QPalette.Base, window_color)
+                pal.setColor(QPalette.AlternateBase, window_color)
+                self.setPalette(pal)
+                self.setAutoFillBackground(True)
+
+                try:
+                    self.viewport().setAutoFillBackground(True)
+
+                except Exception:
+                    pass
+
             self.setMouseTracking(True)
             self._hover_preview = None
             self._current_hover_item = None

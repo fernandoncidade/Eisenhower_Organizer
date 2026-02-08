@@ -1,6 +1,8 @@
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, QCoreApplication, QDate, QLocale, QTime
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox, QDateEdit, QCheckBox, QTimeEdit, QSizePolicy
+from PySide6.QtGui import QIcon, QColor, QPalette
+from PySide6.QtCore import Qt, QCoreApplication, QDate, QLocale, QTime, QEvent
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, 
+                               QPushButton, QComboBox, QDateEdit, QCheckBox, QTimeEdit, 
+                               QSizePolicy, QTabWidget, QTabBar, QStyleOptionTab, QStyle, QStylePainter)
 import os
 import subprocess
 from source.utils.IconUtils import get_icon_path
@@ -164,8 +166,178 @@ class LocalizedTimeEdit(CustomTimeEdit):
         except Exception:
             super().contextMenuEvent(event)
 
+
+class LightActiveTabBar(QTabBar):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._active_lighten = 120
+
+    def paintEvent(self, event):
+        painter = QStylePainter(self)
+        option = QStyleOptionTab()
+
+        for i in range(self.count()):
+            self.initStyleOption(option, i)
+
+            if option.state & QStyle.State_Selected:
+                base = option.palette.color(QPalette.Button)
+
+                if not base.isValid():
+                    base = option.palette.color(QPalette.Window)
+
+                light = QColor(base).lighter(self._active_lighten)
+                option.palette.setColor(QPalette.Button, light)
+                option.palette.setColor(QPalette.Window, light)
+
+            painter.drawControl(QStyle.CE_TabBarTabShape, option)
+            painter.drawControl(QStyle.CE_TabBarTabLabel, option)
+
+
+class AutoSwitchTabWidget(QTabWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._app = None
+
+        try:
+            self._tab_bar = LightActiveTabBar(self)
+            self.setTabBar(self._tab_bar)
+            self._tab_bar.setAcceptDrops(True)
+            self._tab_bar.installEventFilter(self)
+
+        except Exception:
+            self._tab_bar = None
+
+    def set_app(self, app):
+        self._app = app
+
+    def _event_pos(self, event):
+        if hasattr(event, "position"):
+            return event.position().toPoint()
+
+        return event.pos()
+
+    def _is_completed_list(self, lst) -> bool:
+        try:
+            return lst in (
+                self._app.quadrant1_completed_list,
+                self._app.quadrant2_completed_list,
+                self._app.quadrant3_completed_list,
+                self._app.quadrant4_completed_list,
+            )
+
+        except Exception:
+            return False
+
+    def _target_list_for_index(self, idx: int, source_list):
+        if self._app is None:
+            return None
+
+        try:
+            pending = [
+                self._app.quadrant1_list,
+                self._app.quadrant2_list,
+                self._app.quadrant3_list,
+                self._app.quadrant4_list,
+            ]
+            done = [
+                self._app.quadrant1_completed_list,
+                self._app.quadrant2_completed_list,
+                self._app.quadrant3_completed_list,
+                self._app.quadrant4_completed_list,
+            ]
+
+            if 0 <= idx < 4:
+                return done[idx] if self._is_completed_list(source_list) else pending[idx]
+
+        except Exception:
+            pass
+
+        return None
+
+    def _handle_tab_drop(self, event, idx: int):
+        if self._app is None:
+            return
+
+        source = event.source()
+
+        if source is None or not hasattr(source, "selectedItems"):
+            return
+
+        target_list = self._target_list_for_index(idx, source)
+
+        if target_list is None or target_list is source:
+            return
+
+        items = [
+            it for it in (source.selectedItems() or [])
+            if it and (it.flags() & Qt.ItemIsSelectable)
+        ]
+        if not items:
+            return
+
+        new_state = Qt.Checked if self._is_completed_list(target_list) else Qt.Unchecked
+        source.blockSignals(True)
+        target_list.blockSignals(True)
+
+        try:
+            for item in items:
+                self._app.move_item_between_lists(item, source, target_list, new_state)
+
+        finally:
+            source.blockSignals(False)
+            target_list.blockSignals(False)
+
+        try:
+            self._app.save_tasks()
+
+            if hasattr(self._app, "calendar_pane") and self._app.calendar_pane:
+                self._app.calendar_pane.calendar_panel.update_task_list()
+
+        except Exception:
+            pass
+
+        event.acceptProposedAction()
+
+    def eventFilter(self, obj, event):
+        if obj is self._tab_bar and event.type() in (QEvent.DragEnter, QEvent.DragMove):
+            try:
+                idx = self._tab_bar.tabAt(self._event_pos(event))
+
+                if idx >= 0 and idx != self.currentIndex():
+                    self.setCurrentIndex(idx)
+
+                event.acceptProposedAction()
+                return True
+
+            except Exception:
+                pass
+
+        if obj is self._tab_bar and event.type() == QEvent.Drop:
+            try:
+                idx = self._tab_bar.tabAt(self._event_pos(event))
+
+                if idx >= 0:
+                    self.setCurrentIndex(idx)
+                    self._handle_tab_drop(event, idx)
+                    return True
+
+            except Exception:
+                pass
+
+        return super().eventFilter(obj, event)
+
 def init_ui(app):
     app.main_layout = QVBoxLayout()
+
+    def _apply_window_bg(widget, color):
+        try:
+            pal = widget.palette()
+            pal.setColor(QPalette.Window, color)
+            widget.setAutoFillBackground(True)
+            widget.setPalette(pal)
+
+        except Exception:
+            pass
 
     input_layout_top = QHBoxLayout()
 
@@ -291,6 +463,9 @@ def init_ui(app):
     app.date_checkbox.toggled.connect(_on_date_checkbox_toggled)
     app.time_checkbox.setEnabled(app.date_checkbox.isChecked())
 
+    app.priority_label = QLabel(get_text("Prioridade"))
+    second_row_layout.addWidget(app.priority_label)
+
     app.quadrant_selector = QComboBox(app)
     app.quadrant_selector.addItems([
         get_text("🔴 Importante e Urgente"),
@@ -303,9 +478,11 @@ def init_ui(app):
     app.main_layout.addLayout(input_layout_top)
     app.main_layout.addLayout(second_row_layout)
 
-    quadrant_layout = QHBoxLayout()
+    app.quadrant_tabs = AutoSwitchTabWidget()
+    app.quadrant_tabs.set_app(app)
 
-    app.quadrant1_layout = QVBoxLayout()
+    app.quadrant1_tab = QWidget()
+    app.quadrant1_layout = QVBoxLayout(app.quadrant1_tab)
     app.quadrant1_label = QLabel(get_text("🔴 Importante e Urgente"))
     app.quadrant1_list = TaskListWidget(app, is_completed=False)
     app.add_placeholder(app.quadrant1_list, get_text("1º Quadrante"))
@@ -316,8 +493,10 @@ def init_ui(app):
     app.quadrant1_layout.addWidget(app.quadrant1_list)
     app.quadrant1_layout.addWidget(app.quadrant1_completed_label)
     app.quadrant1_layout.addWidget(app.quadrant1_completed_list)
+    app.quadrant_tabs.addTab(app.quadrant1_tab, get_text("🔴 Importante e Urgente"))
 
-    app.quadrant2_layout = QVBoxLayout()
+    app.quadrant2_tab = QWidget()
+    app.quadrant2_layout = QVBoxLayout(app.quadrant2_tab)
     app.quadrant2_label = QLabel(get_text("🟠 Importante, mas Não Urgente"))
     app.quadrant2_list = TaskListWidget(app, is_completed=False)
     app.add_placeholder(app.quadrant2_list, get_text("2º Quadrante"))
@@ -328,8 +507,10 @@ def init_ui(app):
     app.quadrant2_layout.addWidget(app.quadrant2_list)
     app.quadrant2_layout.addWidget(app.quadrant2_completed_label)
     app.quadrant2_layout.addWidget(app.quadrant2_completed_list)
+    app.quadrant_tabs.addTab(app.quadrant2_tab, get_text("🟠 Importante, mas Não Urgente"))
 
-    app.quadrant3_layout = QVBoxLayout()
+    app.quadrant3_tab = QWidget()
+    app.quadrant3_layout = QVBoxLayout(app.quadrant3_tab)
     app.quadrant3_label = QLabel(get_text("🟡 Não Importante, mas Urgente"))
     app.quadrant3_list = TaskListWidget(app, is_completed=False)
     app.add_placeholder(app.quadrant3_list, get_text("3º Quadrante"))
@@ -340,8 +521,10 @@ def init_ui(app):
     app.quadrant3_layout.addWidget(app.quadrant3_list)
     app.quadrant3_layout.addWidget(app.quadrant3_completed_label)
     app.quadrant3_layout.addWidget(app.quadrant3_completed_list)
+    app.quadrant_tabs.addTab(app.quadrant3_tab, get_text("🟡 Não Importante, mas Urgente"))
 
-    app.quadrant4_layout = QVBoxLayout()
+    app.quadrant4_tab = QWidget()
+    app.quadrant4_layout = QVBoxLayout(app.quadrant4_tab)
     app.quadrant4_label = QLabel(get_text("🟢 Não Importante e Não Urgente"))
     app.quadrant4_list = TaskListWidget(app, is_completed=False)
     app.add_placeholder(app.quadrant4_list, get_text("4º Quadrante"))
@@ -352,17 +535,38 @@ def init_ui(app):
     app.quadrant4_layout.addWidget(app.quadrant4_list)
     app.quadrant4_layout.addWidget(app.quadrant4_completed_label)
     app.quadrant4_layout.addWidget(app.quadrant4_completed_list)
+    app.quadrant_tabs.addTab(app.quadrant4_tab, get_text("🟢 Não Importante e Não Urgente"))
 
-    quadrant_layout.addLayout(app.quadrant1_layout)
-    quadrant_layout.addLayout(app.quadrant2_layout)
-    quadrant_layout.addLayout(app.quadrant3_layout)
-    quadrant_layout.addLayout(app.quadrant4_layout)
-
-    app.main_layout.addLayout(quadrant_layout)
+    app.main_layout.addWidget(app.quadrant_tabs)
 
     container = QWidget()
     container.setLayout(app.main_layout)
     app.setCentralWidget(container)
+
+    try:
+        base_color = app.palette().color(QPalette.Window)
+        main_color = QColor(base_color).lighter(120)
+        _apply_window_bg(container, main_color)
+        _apply_window_bg(app.quadrant_tabs, main_color)
+        _apply_window_bg(app.quadrant1_tab, main_color)
+        _apply_window_bg(app.quadrant2_tab, main_color)
+        _apply_window_bg(app.quadrant3_tab, main_color)
+        _apply_window_bg(app.quadrant4_tab, main_color)
+
+        for lbl in (
+            app.quadrant1_label,
+            app.quadrant2_label,
+            app.quadrant3_label,
+            app.quadrant4_label,
+            app.quadrant1_completed_label,
+            app.quadrant2_completed_label,
+            app.quadrant3_completed_label,
+            app.quadrant4_completed_label,
+        ):
+            _apply_window_bg(lbl, main_color)
+
+    except Exception:
+        pass
 
     def _open_linked_file(app, item):
         try:
@@ -371,6 +575,7 @@ def init_ui(app):
 
             data = item.data(Qt.UserRole) or {}
             path = data.get("file_path")
+
             if not path:
                 return
 

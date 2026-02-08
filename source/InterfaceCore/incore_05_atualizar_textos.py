@@ -12,6 +12,7 @@ def atualizar_textos(app):
         app.add_button.setText(get_text("Adicionar Tarefa"))
         app.calendar_button.setText(get_text("Calendário"))
         app.date_checkbox.setText(get_text("Vincular data"))
+        app.priority_label.setText(get_text("Prioridade"))
         app.quadrant_selector.clear()
         app.quadrant_selector.addItems([
             get_text("🔴 Importante e Urgente"),
@@ -28,6 +29,12 @@ def atualizar_textos(app):
         app.quadrant2_completed_label.setText(get_text("Concluídas"))
         app.quadrant3_completed_label.setText(get_text("Concluídas"))
         app.quadrant4_completed_label.setText(get_text("Concluídas"))
+
+        if hasattr(app, "quadrant_tabs") and app.quadrant_tabs is not None:
+            app.quadrant_tabs.setTabText(0, get_text("🔴 Importante e Urgente"))
+            app.quadrant_tabs.setTabText(1, get_text("🟠 Importante, mas Não Urgente"))
+            app.quadrant_tabs.setTabText(2, get_text("🟡 Não Importante, mas Urgente"))
+            app.quadrant_tabs.setTabText(3, get_text("🟢 Não Importante e Não Urgente"))
 
         if app.quadrant1_list.count() == 0:
             app.add_placeholder(app.quadrant1_list, get_text("1º Quadrante"))

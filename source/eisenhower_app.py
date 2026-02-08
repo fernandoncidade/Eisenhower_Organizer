@@ -1,7 +1,7 @@
 import os
-from PySide6.QtCore import QCoreApplication, Qt, QTimer
+from PySide6.QtCore import QCoreApplication, Qt, QTimer, QEvent
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QPushButton
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QColor, QPalette
 from source.utils.IconUtils import get_icon_path
 from source.utils.CaminhoPersistenteUtils import obter_caminho_persistente
 from source.language.tr_01_gerenciadorTraducao import GerenciadorTraducao
@@ -48,6 +48,7 @@ class EisenhowerMatrixApp(QMainWindow):
         self.move(100, 100)
 
         icon_path = get_icon_path("organizador.ico")
+
         if icon_path:
             from PySide6.QtGui import QIcon
             self.setWindowIcon(QIcon(icon_path))
@@ -56,6 +57,13 @@ class EisenhowerMatrixApp(QMainWindow):
         self.arquivo = Arquivo(self)
 
         self.initUI()
+
+        try:
+            self._apply_theme_palette()
+
+        except Exception:
+            pass
+
         self.load_tasks()
         self.criar_menu_configuracoes()
         QTimer.singleShot(0, self._clamp_window_to_screen)
@@ -73,6 +81,20 @@ class EisenhowerMatrixApp(QMainWindow):
 
         finally:
             super().closeEvent(event)
+
+    def changeEvent(self, event):
+        try:
+            if event and event.type() in (
+                QEvent.ApplicationPaletteChange,
+                QEvent.PaletteChange,
+                QEvent.StyleChange,
+            ):
+                QTimer.singleShot(0, self._apply_theme_palette)
+
+        except Exception:
+            pass
+
+        super().changeEvent(event)
 
     def criar_menu_configuracoes(self):
         core_criar_menu(self)
@@ -94,10 +116,116 @@ class EisenhowerMatrixApp(QMainWindow):
             layout.addWidget(old_central, 1)
 
             self.setCentralWidget(container)
+            self._main_content = old_central
+            self._root_container = container
             self._hide_legacy_calendar_button()
 
         except Exception as e:
             logger.error(f"Erro ao inicializar UI: {e}", exc_info=True)
+
+    def _apply_theme_palette(self):
+        def _apply_window_bg(widget, color):
+            if widget is None:
+                return
+
+            try:
+                pal = widget.palette()
+                pal.setColor(QPalette.Window, color)
+                widget.setAutoFillBackground(True)
+                widget.setPalette(pal)
+
+            except Exception:
+                pass
+
+        def _apply_list_bg(widget, color):
+            if widget is None:
+                return
+
+            try:
+                pal = widget.palette()
+                pal.setColor(QPalette.Base, color)
+                pal.setColor(QPalette.AlternateBase, color)
+                widget.setPalette(pal)
+                widget.setAutoFillBackground(True)
+
+                try:
+                    widget.viewport().setAutoFillBackground(True)
+
+                except Exception:
+                    pass
+
+            except Exception:
+                pass
+
+        try:
+            base_color = self.palette().color(QPalette.Window)
+            main_color = QColor(base_color).lighter(120)
+            list_color = QColor(base_color).darker(105)
+
+            _apply_window_bg(getattr(self, "_root_container", None), main_color)
+            _apply_window_bg(getattr(self, "_main_content", None), main_color)
+            _apply_window_bg(getattr(self, "quadrant_tabs", None), main_color)
+            _apply_window_bg(getattr(self, "quadrant1_tab", None), main_color)
+            _apply_window_bg(getattr(self, "quadrant2_tab", None), main_color)
+            _apply_window_bg(getattr(self, "quadrant3_tab", None), main_color)
+            _apply_window_bg(getattr(self, "quadrant4_tab", None), main_color)
+
+            for label_name in (
+                "quadrant1_label",
+                "quadrant2_label",
+                "quadrant3_label",
+                "quadrant4_label",
+                "quadrant1_completed_label",
+                "quadrant2_completed_label",
+                "quadrant3_completed_label",
+                "quadrant4_completed_label",
+            ):
+                _apply_window_bg(getattr(self, label_name, None), main_color)
+
+            for list_name in (
+                "quadrant1_list",
+                "quadrant2_list",
+                "quadrant3_list",
+                "quadrant4_list",
+                "quadrant1_completed_list",
+                "quadrant2_completed_list",
+                "quadrant3_completed_list",
+                "quadrant4_completed_list",
+            ):
+                _apply_list_bg(getattr(self, list_name, None), list_color)
+
+            for input_name in (
+                "task_input",
+                "date_input",
+                "time_input",
+                "quadrant_selector",
+            ):
+                _apply_list_bg(getattr(self, input_name, None), list_color)
+
+            try:
+                panel = self.calendar_pane.calendar_panel if hasattr(self, "calendar_pane") and self.calendar_pane else None
+                _apply_window_bg(panel, main_color)
+                _apply_window_bg(getattr(panel, "tasks_label", None), main_color)
+                _apply_list_bg(getattr(panel, "tasks_list", None), list_color)
+                _apply_list_bg(getattr(panel, "filter_combo", None), list_color)
+
+            except Exception:
+                pass
+
+            try:
+                tabs = getattr(self, "quadrant_tabs", None)
+
+                if tabs is not None:
+                    tab_bar = tabs.tabBar()
+
+                    if tab_bar is not None:
+                        tab_bar.update()
+
+            except Exception:
+                pass
+
+        except Exception:
+            pass
 
     def _hide_legacy_calendar_button(self):
         try:
