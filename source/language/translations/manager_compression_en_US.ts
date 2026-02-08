@@ -157,7 +157,7 @@
     </message>
     <message>
         <source>description_text</source>
-        <translation>Lightweight application to organize tasks in Eisenhower Matrix quadrants, with intuitive interface, import/export features, and fully offline operation.</translation>
+        <translation>EISENHOWER ORGANIZER is a lightweight application to manage tasks using the Eisenhower Matrix (Important/Urgent). It allows creating, categorizing, marking tasks as completed, and exporting/importing tasks quickly and simply. The interface is translatable and prepared for distribution as an executable — end users do not need to install dependencies manually.</translation>
     </message>
     <message>
         <source>show_history</source>

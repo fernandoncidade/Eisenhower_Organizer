@@ -1,3 +1,38 @@
+RELEASE NOTES: Version 0.1.1.0
+Date: February 1, 2026
+
+What's new:
+- Updated About dialog version and refinements in the display of history and release notes.
+- Improved calendar panel behavior: smoother expand/collapse and more predictable main window resizing when toggling the panel.
+- Enhanced fallback for opening linked files, increasing reliability when activating external files.
+
+Usability and internationalization improvements:
+- More consistent translations and date/time formats when switching language at runtime.
+- Immediate update of texts and titles in non-modal dialogs (About, Manual) after language change.
+- Task tooltips are more informative and readable, with improved ordering and formatting for quick preview.
+
+Reliability, synchronization and expected behavior:
+- Fixes in synchronization between lists and calendar, ensuring consistent updates of badges and highlights after adding/editing/moving tasks.
+- Reinforced cleanup of orphaned time headers to avoid empty groups after removals or moves.
+- Greater error tolerance in sensitive operations, with expanded logging to aid diagnosis without interrupting use.
+
+Accessibility, appearance and auxiliary behaviors:
+- Visual and contrast adjustments for badges and highlights, maintaining legibility in light and dark themes.
+- Better compatibility for opening links and files across platforms via more reliable native fallbacks.
+
+Important fixes and adjustments:
+- Prevents duplication or loss of tasks when moving/editing items between lists.
+- Fixes cases where the calendar did not update counters (badges) immediately after task changes.
+- Ensures previously opened dialogs are reused correctly or closed without leaving dangling references when the application exits.
+
+Notes:
+- No file format or saving mechanism has been changed; data remains stored locally.
+- The application remains fully offline — no data is sent to external servers.
+
+
+______________________________
+
+
 RELEASE NOTES: Version 0.1.0.0
 Date: January 21, 2026
 

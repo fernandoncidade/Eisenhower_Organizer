@@ -1,41 +1,79 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QTextBrowser, QSizePolicy, QHBoxLayout, QWidget, QTabWidget
 from PySide6.QtCore import Qt, QCoreApplication, QEvent
+from PySide6.QtGui import QTextDocument
 from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 
 
 class SobreDialog(QDialog):
-    def __init__(self, parent, titulo, texto_fixo, texto_history, detalhes, licencas, sites_licencas, 
-                 show_history_text=None, hide_history_text=None, 
-                 show_details_text=None, hide_details_text=None, 
-                 show_licenses_text=None, hide_licenses_text=None, 
-                 ok_text=None, site_oficial_text=None, avisos=None, 
-                 show_notices_text=None, hide_notices_text=None, 
-                 Privacy_Policy=None, show_privacy_policy_text=None, hide_privacy_policy_text=None, 
-                 info_not_available_text="Information not available", 
-                 release_notes=None, show_release_notes_text=None, hide_release_notes_text=None):
+    def __init__(self, 
+        parent, 
+        titulo, 
+        texto_fixo, 
+        texto_history, 
+        detalhes, 
+        licencas, 
+        sites_licencas, 
+        show_history_text=None, 
+        hide_history_text=None, 
+        show_details_text=None, 
+        hide_details_text=None, 
+        show_licenses_text=None, 
+        hide_licenses_text=None, 
+        ok_text=None, 
+        site_oficial_text=None, 
+        avisos=None, 
+        show_notices_text=None, 
+        hide_notices_text=None, 
+        Privacy_Policy=None, 
+        show_privacy_policy_text=None, 
+        hide_privacy_policy_text=None, 
+        info_not_available_text="Information not available", 
+        release_notes=None, 
+        show_release_notes_text=None, 
+        hide_release_notes_text=None):
         super().__init__(parent)
         try:
             self.setWindowTitle(titulo)
-            self.setWindowFlags(Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint)
+            self.setWindowFlags(
+                Qt.Window | 
+                Qt.WindowTitleHint | 
+                Qt.WindowSystemMenuHint | 
+                Qt.WindowMinMaxButtonsHint | 
+                Qt.WindowCloseButtonHint)
             self.setModal(False)
 
             layout = QVBoxLayout(self)
+            layout.setSpacing(0)
 
-            header_widget = QWidget()
-            header_layout = QVBoxLayout(header_widget)
-            header_layout.setContentsMargins(0, 0, 0, 0)
-            header_layout.setSpacing(5)
-
+            # Fixed Label
             self.fixed_label = QLabel(texto_fixo)
             self.fixed_label.setTextFormat(Qt.TextFormat.RichText)
             self.fixed_label.setWordWrap(True)
             self.fixed_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            self.fixed_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-            header_layout.addWidget(self.fixed_label)
+            self.fixed_label.setContentsMargins(0, 0, 0, 0)
+            self.fixed_label.setIndent(0)
+            self.fixed_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-            header_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-            layout.addWidget(header_widget)
+            try:
+                doc = QTextDocument()
+                doc.setDefaultFont(self.fixed_label.font())
+                doc.setHtml(texto_fixo)
+                doc.setDocumentMargin(0)
+
+                est_width = self.width() if self.width() > 0 else 800
+                doc.setTextWidth(est_width)
+
+                h = int(doc.size().height()) or self.fixed_label.sizeHint().height()
+                h = max(1, h + 2)
+                self.fixed_label.setMinimumHeight(h)
+                self.fixed_label.setMaximumHeight(h)
+                self._header_min_height = h
+
+            except Exception:
+                pass
+
+            layout.addWidget(self.fixed_label)
 
             sh_history = show_history_text or "Histórico"
             hi_history = hide_history_text or "Ocultar histórico"
@@ -89,6 +127,7 @@ class SobreDialog(QDialog):
                 for site in sites_licencas.strip().split('\n'):
                     if site.strip():
                         texto_html += f'<li><a href="{site.strip()}">{site.strip()}</a></li>'
+
                 texto_html += "</ul>"
                 self.licencas_browser.setHtml(texto_html)
 
@@ -157,6 +196,7 @@ class SobreDialog(QDialog):
             layout.addWidget(self.tabs)
 
             button_layout = QHBoxLayout()
+            button_layout.setContentsMargins(0, 8, 0, 0)
             self.ok_button = QPushButton(ok_text)
             self.ok_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
             self.ok_button.clicked.connect(self.accept)
@@ -207,18 +247,10 @@ class SobreDialog(QDialog):
         return val if val and val != key else key
 
     def _retranslate_ui(self) -> None:
-        version_label = self._tr_multi('version') or 'Version'
-        authors_label = self._tr_multi('authors') or 'Authors'
-        description_label = self._tr_multi('description_text') or ''
-
-        cabecalho = (
-            "<h3>EISENHOWER ORGANIZER</h3>"
-            f"<p><b>{version_label}:</b> 0.0.7.0</p>"
-            f"<p><b>{authors_label}:</b> Fernando Nillsson Cidade</p>"
-            f"<p><b>{self._tr_multi('description') or 'Description'}:</b> {description_label}</p>"
-        )
         try:
-            self.fixed_label.setText(cabecalho)
+            header_builder = getattr(self, "_header_builder", None)
+            if callable(header_builder):
+                self.fixed_label.setText(header_builder())
 
         except Exception:
             pass
@@ -242,6 +274,11 @@ class SobreDialog(QDialog):
             parent = self.parent()
             if hasattr(parent, 'gerenciador_traducao') and parent.gerenciador_traducao:
                 idioma = parent.gerenciador_traducao.obter_idioma_atual() or 'pt_BR'
+
+            else:
+                app_ref = getattr(self, "_app_for_translation", None)
+                if hasattr(app_ref, 'gerenciador_traducao') and app_ref.gerenciador_traducao:
+                    idioma = app_ref.gerenciador_traducao.obter_idioma_atual() or 'pt_BR'
 
         except Exception:
             pass
@@ -329,6 +366,13 @@ class SobreDialog(QDialog):
 
         try:
             self.ok_button.setText(self._tr_multi('OK') or 'OK')
+
+        except Exception:
+            pass
+
+        try:
+            window_title = f"{self._tr_multi('Sobre') or 'Sobre'} - EISENHOWER ORGANIZER"
+            self.setWindowTitle(window_title)
 
         except Exception:
             pass

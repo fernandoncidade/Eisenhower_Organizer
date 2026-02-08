@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt, QCoreApplication, QDate, QLocale
 from PySide6.QtWidgets import QListWidgetItem
 from PySide6.QtGui import QFont
 from source.utils.LogManager import LogManager
+from source.InterfaceCore.incore_13_prioridade_display import prioridade_para_texto
 logger = LogManager.get_logger()
 
 def get_text(text: str) -> str:
@@ -166,6 +167,16 @@ def atualizar_itens_tarefas(app):
                             description = data.get("description")
                             if description:
                                 tooltip_lines.append(f"{get_text('Descrição') or 'Descrição'}: {description}")
+
+                    except Exception:
+                        pass
+
+                    try:
+                        if isinstance(data, dict):
+                            prio = data.get("priority")
+                            if prio is not None and prio != "":
+                                prio_text = prioridade_para_texto(prio, app)
+                                tooltip_lines.append(f"{get_text('Prioridade') or 'Prioridade'}: {prio_text}")
 
                     except Exception:
                         pass

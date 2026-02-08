@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtCore import QCoreApplication, QDate
 from PySide6.QtGui import QFont
 from source.utils.LogManager import LogManager
+from source.InterfaceCore.incore_13_prioridade_display import prioridade_para_texto
 logger = LogManager.get_logger()
 
 def get_text(text):
@@ -143,7 +144,8 @@ def move_item_between_lists(app, item, source, target, new_check_state):
                 try:
                     prio = new_data.get("priority")
                     if prio is not None and prio != "":
-                        tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+                        prio_text = prioridade_para_texto(prio, app)
+                        tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio_text}")
 
                 except Exception:
                     pass
@@ -227,7 +229,8 @@ def move_item_between_lists(app, item, source, target, new_check_state):
                                     try:
                                         prio = ct.get("priority")
                                         if prio is not None and prio != "":
-                                            tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+                                            prio_text = prioridade_para_texto(prio, app)
+                                            tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio_text}")
 
                                     except Exception:
                                         pass

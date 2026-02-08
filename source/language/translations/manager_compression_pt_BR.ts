@@ -157,7 +157,7 @@
     </message>
     <message>
         <source>description_text</source>
-        <translation>Aplicativo leve para organizar tarefas em quadrantes da Matriz de Eisenhower, com interface intuitiva, exportação/importação e operação totalmente offline.</translation>
+        <translation>EISENHOWER ORGANIZER é um aplicativo leve para organizar tarefas usando a Matriz de Eisenhower (Importante/Urgente). Permite criar, classificar, marcar como concluídas e exportar/importar tarefas de forma simples e rápida. A interface é traduzível e preparada para distribuição como executável — o usuário final não precisa instalar dependências manualmente.</translation>
     </message>
     <message>
         <source>show_history</source>

@@ -4,6 +4,7 @@ from PySide6.QtGui import QAction, QColor, QPalette, QFont, QDesktopServices
 from PySide6.QtCore import QCoreApplication, Qt, QDate, QTime, QLocale, QUrl
 from PySide6.QtGui import QFont
 from source.InterfaceCore.incore_01_initUI import FileDropLineEdit
+from source.InterfaceCore.incore_13_prioridade_display import prioridade_para_texto
 from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 
@@ -433,7 +434,8 @@ def _edit_date_time_dialog(app, item):
             try:
                 prio = new_data.get("priority")
                 if prio is not None and prio != "":
-                    tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+                    prio_text = prioridade_para_texto(prio, app)
+                    tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio_text}")
 
             except Exception:
                 pass
@@ -643,7 +645,8 @@ def mostrar_menu_contexto(app, point, list_widget):
                             try:
                                 prio = data.get("priority")
                                 if prio is not None and prio != "":
-                                    tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+                                    prio_text = prioridade_para_texto(prio, app)
+                                    tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio_text}")
 
                             except Exception:
                                 pass

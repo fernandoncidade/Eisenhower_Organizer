@@ -1,3 +1,38 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.1.0
+Data: 1 de fevereiro de 2026
+
+Principais novidades:
+- Atualização de versão do diálogo "Sobre" e refinamentos na exibição do histórico e notas de versão.
+- Melhoria no comportamento do painel de calendário: abertura/recolhimento mais suave e redimensionamento da janela principal mais previsível ao alternar o painel.
+- Aprimoramento no fallback de abertura de arquivos vinculados, aumentando a confiabilidade ao ativar arquivos externos.
+
+Melhorias de usabilidade e internacionalização:
+- Traduções e formatos de data/hora mais consistentes ao trocar o idioma em tempo de execução.
+- Atualização imediata dos textos e títulos em diálogos não modais (Sobre, Manual) após mudança de idioma.
+- Tooltips das tarefas mais informativos e legíveis, com ordenação e formatação melhoradas para pré-visualização rápida.
+
+Robustez, sincronização e comportamento esperado:
+- Correções na sincronização entre listas e calendário, garantindo atualização consistente de badges e destaques após adicionar/editar/mover tarefas.
+- Limpeza de cabeçalhos de horário órfãos reforçada para evitar agrupamentos vazios após remoções ou movimentos.
+- Maior tolerância a erros em operações sensíveis, com logging ampliado para facilitar diagnóstico sem interromper o uso.
+
+Acessibilidade, aparência e comportamentos auxiliares:
+- Ajustes visuais e de contraste para badges e destaques, mantendo legibilidade em temas claros e escuros.
+- Melhor compatibilidade de abertura de links e arquivos em diferentes plataformas através de fallbacks nativos mais confiáveis.
+
+Correções e ajustes importantes:
+- Evita duplicação ou perda de tarefas ao mover/editar itens entre listas.
+- Corrige casos em que o calendário não atualizava contadores (badges) imediatamente após mudanças nas tarefas.
+- Garante que diálogos abertos anteriormente sejam reaproveitados corretamente ou fechados sem deixar referências remanescentes no encerramento do aplicativo.
+
+Observações:
+- Nenhum formato de arquivo ou mecanismo de salvamento foi alterado; os dados permanecem armazenados localmente.
+- O aplicativo mantém operação totalmente offline — nenhum dado é enviado a servidores externos.
+
+
+______________________________
+
+
 NOTAS DE LANÇAMENTO: Versão 0.1.0.0
 Data: 21 de janeiro de 2026
 

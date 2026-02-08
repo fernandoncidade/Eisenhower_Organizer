@@ -393,7 +393,8 @@ _DOC_PT_BR: tuple[ManualSection, ...] = (
         title="Como obter ajuda e suporte",
         bullets=(
             "Consulte a seção 'Sobre' dentro do aplicativo para informações oficiais e notas de versão.",
-            f"Para problemas mais complexos, gere logs e envie-os ao suporte. Os arquivos de log estão em: { _DATA_DIR }",
+            "Para problemas mais complexos, gere logs e envie-os ao suporte - linceu_lighthouse@outlook.com",
+            f"Os arquivos de log estão em: { _DATA_DIR }",
         ),
     ),
 )
@@ -530,7 +531,8 @@ _DOC_EN_US: tuple[ManualSection, ...] = (
         title="How to Get Help / Support",
         bullets=(
             "See the 'About' section inside the application for official information and release notes.",
-            f"For complex issues, generate logs and send them to support. Log files are located at: { _DATA_DIR }",
+            "For complex issues, generate logs and send them to support - linceu_lighthouse@outlook.com",
+            f"Log files are located at: { _DATA_DIR }",
         ),
     ),
 )

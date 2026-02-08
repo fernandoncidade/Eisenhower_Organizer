@@ -23,6 +23,7 @@ from source.GerenciamentoUI.ui_08_load_tasks import load_tasks as ui_load_tasks
 from source.GerenciamentoUI.ui_09_Calendar import Calendar
 from source.GerenciamentoUI.ui_10_edit_task import edit_task_datetime as ui_edit_task_datetime
 from source.GerenciamentoUI.ui_10_edit_task import move_task_to_quadrant as ui_move_task_to_quadrant
+from source.InterfaceCore.incore_13_prioridade_display import prioridade_para_texto
 from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 
@@ -50,6 +51,20 @@ class EisenhowerMatrixApp(QMainWindow):
         self.initUI()
         self.load_tasks()
         self.criar_menu_configuracoes()
+
+    def closeEvent(self, event):
+        try:
+            for attr in ("_sobre_dialog", "_manual_dialog"):
+                dlg = getattr(self, attr, None)
+                if dlg is not None:
+                    try:
+                        dlg.close()
+
+                    except Exception:
+                        pass
+
+        finally:
+            super().closeEvent(event)
 
     def criar_menu_configuracoes(self):
         core_criar_menu(self)
@@ -166,7 +181,8 @@ class EisenhowerMatrixApp(QMainWindow):
 
                 prio = data.get("priority")
                 if prio is not None and prio != "":
-                    tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+                    prio_text = prioridade_para_texto(prio, self)
+                    tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio_text}")
 
                 if tooltip_lines:
                     try:
@@ -291,7 +307,8 @@ class EisenhowerMatrixApp(QMainWindow):
 
             prio = data.get("priority")
             if prio is not None and prio != "":
-                tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+                prio_text = prioridade_para_texto(prio, self)
+                tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio_text}")
 
             if tooltip_lines:
                 try:

@@ -1,8 +1,10 @@
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QCalendarWidget, QComboBox, QListWidget, QListWidgetItem,
-                               QLabel, QHBoxLayout, QAbstractItemView, QWidget, QSizePolicy, QStyle, QStyleOptionFrame)
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QCalendarWidget, QComboBox, QListWidget,
+                               QListWidgetItem, QCheckBox, QLabel, QHBoxLayout, QAbstractItemView,
+                               QWidget, QSizePolicy, QStyle, QStyleOptionFrame, QToolTip)
 from PySide6.QtCore import Qt, QDate, QCoreApplication, QLocale, QSize, QEvent, QRect, QObject, QUrl
 from PySide6.QtGui import QPainter, QFontMetrics, QTextCharFormat, QBrush, QColor, QFont, QPen, QPalette, QDesktopServices
 from source.InterfaceCore.incore_07_show_context_menu import show_context_menu
+from source.InterfaceCore.incore_13_prioridade_display import prioridade_para_texto
 from source.utils.LogManager import LogManager
 from collections import defaultdict
 logger = LogManager.get_logger()
@@ -18,9 +20,23 @@ class BadgeCalendarWidget(QCalendarWidget):
             self._task_counts_by_date = {}  # {date_str: count}
             self._task_counts_by_week = {}  # {week_number: count}
             self._task_counts_by_month = {}  # {(year, month): count}
+            self._tasks_by_date = {}  # {date_iso_str: [lines]}
 
         except Exception as e:
             logger.error(f"Erro ao inicializar BadgeCalendarWidget: {e}", exc_info=True)
+
+        try:
+            self.setMouseTracking(True)
+
+        except Exception:
+            pass
+
+    def set_task_tooltip_map(self, tasks_by_date: dict):
+        try:
+            self._tasks_by_date = tasks_by_date or {}
+
+        except Exception as e:
+            logger.error(f"Erro ao definir mapa de tooltip do calendário: {e}", exc_info=True)
 
     def set_task_counts(self, task_dates_iso):
         try:
@@ -97,6 +113,68 @@ class BadgeCalendarWidget(QCalendarWidget):
 
         except Exception as e:
             logger.error(f"Erro ao desenhar badge: {e}", exc_info=True)
+
+    def _date_at_pos(self, pos):
+        try:
+            if hasattr(self, "dateAt"):
+                try:
+                    qd = self.dateAt(pos)
+                    if isinstance(qd, QDate) and qd.isValid():
+                        return qd
+
+                except Exception:
+                    pass
+
+            view = self.findChild(QAbstractItemView)
+            if view is not None:
+                vpos = view.mapFrom(self, pos)
+                idx = view.indexAt(vpos)
+                if idx.isValid():
+                    for role in (Qt.UserRole, Qt.UserRole + 1, Qt.UserRole + 2, Qt.DisplayRole):
+                        try:
+                            val = idx.data(role)
+                            if isinstance(val, QDate) and val.isValid():
+                                return val
+
+                        except Exception:
+                            pass
+
+                    try:
+                        day_val = idx.data(Qt.DisplayRole)
+                        day = int(day_val)
+                        if day > 0:
+                            qd = QDate(self.yearShown(), self.monthShown(), day)
+                            if qd.isValid():
+                                return qd
+
+                    except Exception:
+                        pass
+
+        except Exception as e:
+            logger.error(f"Erro ao obter data pelo mouse no calendário: {e}", exc_info=True)
+
+        return None
+
+    def event(self, event):
+        try:
+            if event.type() == QEvent.ToolTip:
+                pos = event.position().toPoint() if hasattr(event, "position") else event.pos()
+                qd = self._date_at_pos(pos)
+                if qd and qd.isValid():
+                    ds = qd.toString(Qt.ISODate)
+                    lines = self._tasks_by_date.get(ds) or []
+                    if lines:
+                        QToolTip.showText(event.globalPos(), "\n".join(lines), self)
+                        return True
+
+                QToolTip.hideText()
+                event.ignore()
+                return True
+
+        except Exception as e:
+            logger.error(f"Erro ao exibir tooltip no calendário: {e}", exc_info=True)
+
+        return super().event(event)
 
     def get_week_count(self, week_number):
         return self._task_counts_by_week.get(week_number, 0)
@@ -198,6 +276,10 @@ class CalendarDialog(QDialog):
             self.filter_combo.addItem(get_text("Mês"), "month")
             controls_layout.addWidget(self.filter_combo)
             controls_layout.addStretch()
+            self.show_priority_checkbox = QCheckBox(get_text("Mostrar prioridade"), self)
+            self.show_priority_checkbox.setChecked(True)
+            self.show_priority_checkbox.stateChanged.connect(self.update_task_list)
+            controls_layout.addWidget(self.show_priority_checkbox)
             main_layout.addLayout(controls_layout)
 
             self.tasks_label = QLabel(get_text("Lista Global de Tarefas:"), self)
@@ -341,7 +423,59 @@ class CalendarDialog(QDialog):
             filter_mode = self.filter_combo.currentData()
             filtered = []
 
-            for task in self._collect_tasks():
+            tasks_all = self._collect_tasks()
+            try:
+                def _emoji_from_priority(prio) -> str:
+                    try:
+                        label = prioridade_para_texto(prio, self)
+                        if label:
+                            emoji = str(label).strip()[:1]
+                            if emoji in {"🔴", "🟠", "🟡", "🟢"}:
+                                return emoji
+
+                    except Exception:
+                        pass
+
+                    return ""
+
+                show_priority = True
+                try:
+                    show_priority = bool(getattr(self, "show_priority_checkbox", None) and self.show_priority_checkbox.isChecked())
+
+                except Exception:
+                    show_priority = True
+
+                tooltip_map = {}
+                for task in tasks_all:
+                    ds = task.get("date")
+                    if not ds:
+                        continue
+
+                    text = (task.get("text") or "").strip()
+                    if not text:
+                        continue
+
+                    time_str = task.get("time") or ""
+                    emoji = _emoji_from_priority(task.get("priority")) if show_priority else ""
+                    status_text = get_text("Concluída") if task.get("completed") else get_text("Pendente")
+                    if time_str:
+                        line = f"{emoji} {time_str} — {text} ({status_text})".strip()
+
+                    else:
+                        line = f"{emoji} {text} ({status_text})".strip()
+
+                    tooltip_map.setdefault(ds, []).append(line)
+
+                for ds, lines in tooltip_map.items():
+                    lines.sort()
+
+                if hasattr(self, "calendar") and hasattr(self.calendar, "set_task_tooltip_map"):
+                    self.calendar.set_task_tooltip_map(tooltip_map)
+
+            except Exception as e:
+                logger.error(f"Erro ao atualizar tooltip do calendário: {e}", exc_info=True)
+
+            for task in tasks_all:
                 date_str = task.get("date")
                 if not date_str:
                     continue
@@ -382,9 +516,16 @@ class CalendarDialog(QDialog):
                 else:
                     dt_str = date_str
 
-                item_text = f"{dt_str} — {task['text']} — [{status_text}]"
+                emoji = ""
+                try:
+                    if show_priority:
+                        emoji = _emoji_from_priority(task.get("priority"))
+
+                except Exception:
+                    emoji = ""
+
+                item_text = f"{emoji} {dt_str} — {task['text']} — [{status_text}]".strip()
                 item = QListWidgetItem(item_text)
-                # Garantir que itens de tarefa estejam selecionáveis e habilitados
                 item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
 
                 try:
@@ -426,7 +567,8 @@ class CalendarDialog(QDialog):
 
                     prio = task.get("priority")
                     if prio is not None and prio != "":
-                        tooltip_lines.append(f"{get_text('Prioridade') or 'Prioridade'}: {prio}")
+                        prio_text = prioridade_para_texto(prio, self)
+                        tooltip_lines.append(f"{get_text('Prioridade') or 'Prioridade'}: {prio_text}")
 
                     if tooltip_lines:
                         try:
@@ -466,6 +608,13 @@ class CalendarDialog(QDialog):
 
             try:
                 self.tasks_label.setText(get_text("Lista Global de Tarefas:"))
+
+            except Exception:
+                pass
+
+            try:
+                if hasattr(self, "show_priority_checkbox"):
+                    self.show_priority_checkbox.setText(get_text("Mostrar prioridade"))
 
             except Exception:
                 pass
@@ -653,6 +802,10 @@ class CalendarPanel(QWidget):
             self.filter_combo.addItem(get_text("Mês"), "month")
             controls_layout.addWidget(self.filter_combo)
             controls_layout.addStretch()
+            self.show_priority_checkbox = QCheckBox(get_text("Mostrar prioridade"), self)
+            self.show_priority_checkbox.setChecked(True)
+            self.show_priority_checkbox.stateChanged.connect(self.update_task_list)
+            controls_layout.addWidget(self.show_priority_checkbox)
             main_layout.addLayout(controls_layout)
 
             self.tasks_label = QLabel(get_text("Lista Global de Tarefas:"), self)
@@ -728,6 +881,13 @@ class CalendarPanel(QWidget):
 
             try:
                 self.tasks_label.setText(get_text("Lista Global de Tarefas:"))
+
+            except Exception:
+                pass
+
+            try:
+                if hasattr(self, "show_priority_checkbox"):
+                    self.show_priority_checkbox.setText(get_text("Mostrar prioridade"))
 
             except Exception:
                 pass

@@ -4,12 +4,18 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QT
 from source.GerenciamentoUI.ui_01_SobreDialog import SobreDialog
 from source.GerenciamentoUI.ui_02_OpcoesSobre import (
     SITE_LICENSES,
-    LICENSE_TEXT_PT_BR, LICENSE_TEXT_EN_US,
-    NOTICE_TEXT_PT_BR, NOTICE_TEXT_EN_US,
-    ABOUT_TEXT_PT_BR, ABOUT_TEXT_EN_US,
-    Privacy_Policy_pt_BR, Privacy_Policy_en_US,
-    History_APP_pt_BR, History_APP_en_US,
-    RELEASE_NOTES_pt_BR, RELEASE_NOTES_en_US
+    LICENSE_TEXT_PT_BR, 
+    LICENSE_TEXT_EN_US,
+    NOTICE_TEXT_PT_BR, 
+    NOTICE_TEXT_EN_US,
+    ABOUT_TEXT_PT_BR, 
+    ABOUT_TEXT_EN_US,
+    Privacy_Policy_pt_BR, 
+    Privacy_Policy_en_US,
+    History_APP_pt_BR, 
+    History_APP_en_US,
+    RELEASE_NOTES_pt_BR, 
+    RELEASE_NOTES_en_US
 )
 from PySide6.QtWidgets import QMessageBox
 from source.utils.LogManager import LogManager
@@ -24,8 +30,27 @@ def _tr_multi(key: str) -> str:
     val = QCoreApplication.translate("InterfaceGrafica", key)
     return val if val and val != key else key
 
+def _build_cabecalho_fixo() -> str:
+    return (
+        "<h3>EISENHOWER ORGANIZER</h3>"
+        f"<p><b>{_tr_multi('version') or 'Version'}:</b> 0.1.1.0</p>"
+        f"<p><b>{_tr_multi('authors') or 'Authors'}:</b> Fernando Nillsson Cidade</p>"
+        f"<p><b>{_tr_multi('description') or 'Description'}:</b> {_tr_multi('description_text') or ''}</p>"
+    )
+
 def exibir_sobre(app):
     try:
+        existing = getattr(app, "_sobre_dialog", None)
+        if existing is not None:
+            try:
+                if existing.isVisible():
+                    existing.raise_()
+                    existing.activateWindow()
+                    return
+
+            except Exception:
+                pass
+
         idioma = app.gerenciador_traducao.obter_idioma_atual()
         textos_sobre = { "pt_BR": ABOUT_TEXT_PT_BR, "en_US": ABOUT_TEXT_EN_US }
         textos_licenca = { "pt_BR": LICENSE_TEXT_PT_BR, "en_US": LICENSE_TEXT_EN_US }
@@ -41,15 +66,10 @@ def exibir_sobre(app):
         texto_history = history_texts.get(idioma, history_texts["en_US"])
         texto_release_notes = release_notes_texts.get(idioma, release_notes_texts["en_US"])
 
-        cabecalho_fixo = (
-            "<h3>EISENHOWER ORGANIZER</h3>"
-            f"<p><b>{_tr_multi('version') or 'Version'}:</b> 0.1.0.0</p>"
-            f"<p><b>{_tr_multi('authors') or 'Authors'}:</b> Fernando Nillsson Cidade</p>"
-            f"<p><b>{_tr_multi('description') or 'Description'}:</b> {_tr_multi('description_text') or ''}</p>"
-        )
+        cabecalho_fixo = _build_cabecalho_fixo()
 
         dialog = SobreDialog(
-            app,
+            None,
             titulo=f"{_tr_multi('Sobre') or 'Sobre'} - EISENHOWER ORGANIZER",
             texto_fixo=cabecalho_fixo,
             texto_history=texto_history,
@@ -75,6 +95,40 @@ def exibir_sobre(app):
             show_release_notes_text=_tr_multi("show_release_notes") or "Release Notes",
             hide_release_notes_text=_tr_multi("hide_release_notes") or "Hide release notes"
         )
+
+        try:
+            icon_path = get_icon_path("organizador.ico")
+            if icon_path:
+                from PySide6.QtGui import QIcon
+                dialog.setWindowIcon(QIcon(icon_path))
+
+        except Exception:
+            logger.debug("Falha ao definir ícone do diálogo Sobre", exc_info=True)
+
+        dialog._app_for_translation = app
+        dialog._header_builder = _build_cabecalho_fixo
+        dialog.setWindowModality(Qt.WindowModality.NonModal)
+        dialog.setModal(False)
+        dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+
+        setattr(app, "_sobre_dialog", dialog)
+
+        def _clear_sobre_dialog(*_args) -> None:
+            if getattr(app, "_sobre_dialog", None) is dialog:
+                setattr(app, "_sobre_dialog", None)
+
+        dialog.destroyed.connect(_clear_sobre_dialog)
+
+        qt_app = QCoreApplication.instance()
+        if qt_app is not None:
+            qt_app.aboutToQuit.connect(dialog.close)
+
+        try:
+            app.destroyed.connect(dialog.close)
+
+        except Exception:
+            pass
+
         dialog.resize(900, 500)
         dialog.show()
 
@@ -186,7 +240,10 @@ def exibir_manual(app):
 
         btn_close = QPushButton()
         btn_close.clicked.connect(dlg.close)
-        root.addWidget(btn_close)
+        footer = QHBoxLayout()
+        footer.addStretch(1)
+        footer.addWidget(btn_close)
+        root.addLayout(footer)
 
         dlg._manual_positions = {}
         dlg._manual_row_to_id = []
