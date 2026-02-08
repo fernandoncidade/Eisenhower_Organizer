@@ -642,13 +642,13 @@ class CalendarDialog(QDialog):
                 show_priority = True
 
             menu = QMenu(self.calendar)
-            edit_menu = menu.addMenu(get_text("Editar Tarefa...") or "Editar Tarefa...")
-            remove_menu = menu.addMenu(get_text("Remover Tarefa") or "Remover Tarefa")
+            edit_menu = menu.addMenu(get_text("✏️ Editar Tarefa...") or "✏️ Editar Tarefa...")
+            remove_menu = menu.addMenu(get_text("🗑️ Remover Tarefa") or "🗑️ Remover Tarefa")
 
             def _edit_task_from_calendar(task):
                 src_list, item = _find_source_item_for_calendar(self.app, task)
                 if item is None or src_list is None:
-                    QMessageBox.warning(self, get_text("Editar Tarefa"), get_text("Tarefa não encontrada."))
+                    QMessageBox.warning(self, get_text("✏️ Editar Tarefa"), get_text("Tarefa não encontrada."))
                     return
 
                 try:
@@ -662,7 +662,7 @@ class CalendarDialog(QDialog):
             def _remove_task_from_calendar(task):
                 src_list, item = _find_source_item_for_calendar(self.app, task)
                 if item is None or src_list is None:
-                    QMessageBox.warning(self, get_text("Remover Tarefa"), get_text("Tarefa não encontrada."))
+                    QMessageBox.warning(self, get_text("🗑️ Remover Tarefa"), get_text("Tarefa não encontrada."))
                     return
 
                 try:
@@ -725,7 +725,7 @@ class CalendarDialog(QDialog):
         try:
             tasks = _tasks_for_date(self, qdate)
             if not tasks:
-                QMessageBox.information(self, get_text("Editar Tarefa"), get_text("Nenhuma tarefa para este dia."))
+                QMessageBox.information(self, get_text("✏️ Editar Tarefa"), get_text("Nenhuma tarefa para este dia."))
                 return
 
             show_priority = True
@@ -738,7 +738,7 @@ class CalendarDialog(QDialog):
             items = [f"{i + 1}. {_task_label_for_day(task, show_priority)}" for i, task in enumerate(tasks)]
             choice, ok = QInputDialog.getItem(
                 self,
-                get_text("Editar Tarefa") or "Editar Tarefa",
+                get_text("✏️ Editar Tarefa") or "✏️ Editar Tarefa",
                 get_text("Selecione a tarefa") or "Selecione a tarefa",
                 items,
                 0,
@@ -751,7 +751,7 @@ class CalendarDialog(QDialog):
             task = tasks[idx]
             src_list, item = _find_source_item_for_calendar(self.app, task)
             if item is None or src_list is None:
-                QMessageBox.warning(self, get_text("Editar Tarefa"), get_text("Tarefa não encontrada."))
+                QMessageBox.warning(self, get_text("✏️ Editar Tarefa"), get_text("Tarefa não encontrada."))
                 return
 
             try:
@@ -769,7 +769,7 @@ class CalendarDialog(QDialog):
         try:
             tasks = _tasks_for_date(self, qdate)
             if not tasks:
-                QMessageBox.information(self, get_text("Remover Tarefa"), get_text("Nenhuma tarefa para este dia."))
+                QMessageBox.information(self, get_text("🗑️ Remover Tarefa"), get_text("Nenhuma tarefa para este dia."))
                 return
 
             show_priority = True
@@ -784,7 +784,7 @@ class CalendarDialog(QDialog):
 
             choice, ok = QInputDialog.getItem(
                 self,
-                get_text("Remover Tarefa") or "Remover Tarefa",
+                get_text("🗑️ Remover Tarefa") or "🗑️ Remover Tarefa",
                 get_text("Selecione a tarefa") or "Selecione a tarefa",
                 items,
                 0,
@@ -819,7 +819,7 @@ class CalendarDialog(QDialog):
                 task = tasks[idx]
                 src_list, item = _find_source_item_for_calendar(self.app, task)
                 if item is None or src_list is None:
-                    QMessageBox.warning(self, get_text("Remover Tarefa"), get_text("Tarefa não encontrada."))
+                    QMessageBox.warning(self, get_text("🗑️ Remover Tarefa"), get_text("Tarefa não encontrada."))
                     return
 
                 try:

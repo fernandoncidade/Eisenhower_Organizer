@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QMenu, QInputDialog, QDialog, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QLabel, QDateEdit,
-                               QTimeEdit, QCheckBox, QCalendarWidget, QApplication, QFileDialog, QLineEdit)
+                               QTimeEdit, QCheckBox, QCalendarWidget, QApplication, QFileDialog, QLineEdit, QMessageBox)
 from PySide6.QtGui import QAction, QColor, QPalette, QFont, QDesktopServices
 from PySide6.QtCore import QCoreApplication, Qt, QDate, QTime, QLocale, QUrl
 from PySide6.QtGui import QFont
@@ -223,7 +223,7 @@ def edit_task_dialog(app, item):
             def __init__(self, parent=None, initial_text="", initial_file="", initial_description="", initial_date_iso=None, initial_time_str=None):
                 super().__init__(parent or app)
                 self.setModal(True)
-                self.setWindowTitle(get_text("Editar Tarefa") or "Editar Tarefa")
+                self.setWindowTitle(get_text("✏️ Editar Tarefa") or "✏️ Editar Tarefa")
                 layout = QVBoxLayout(self)
 
                 layout.addWidget(QLabel(get_text("Tarefa:")))
@@ -594,52 +594,58 @@ def mostrar_menu_contexto(app, point, list_widget):
 
         menu = QMenu(list_widget)
 
+        selected_items = list_widget.selectedItems() or []
+        if item not in selected_items:
+            selected_items = [item]
+
+        selected_items = [it for it in selected_items if it and (it.flags() & Qt.ItemIsSelectable)]
+
+        def _resolve_item(it):
+            try:
+                data_for_resolution = it.data(Qt.UserRole) or {}
+                if isinstance(data_for_resolution, dict) and data_for_resolution.get("category"):
+                    src_list_for_move, src_item_for_move = _find_source_item_for_calendar(app, data_for_resolution)
+                    if src_list_for_move is not None and src_item_for_move is not None:
+                        return src_list_for_move, src_item_for_move, True
+
+            except Exception:
+                pass
+
+            return list_widget, it, False
+
         def _edit_task():
             edit_task_dialog(app, item)
 
-        editar_acao = QAction(get_text("Editar Tarefa...") or "Editar Tarefa...", app)
+        editar_acao = QAction(get_text("✏️ Editar Tarefa...") or "✏️ Editar Tarefa...", app)
         editar_acao.triggered.connect(_edit_task)
         menu.addAction(editar_acao)
 
         try:
             opts = _quadrant_options(app)
-            mover_menu = QMenu(get_text("Mover para outro quadrante"), app)
-
-            try:
-                data_for_resolution = item.data(Qt.UserRole) or {}
-                src_list_for_move, src_item_for_move = (None, None)
-                if isinstance(data_for_resolution, dict) and data_for_resolution.get("category"):
-                    src_list_for_move, src_item_for_move = _find_source_item_for_calendar(app, data_for_resolution)
-
-                if src_list_for_move is None:
-                    src_list_for_move = list_widget
-                    src_item_for_move = item
-
-            except Exception:
-                src_list_for_move = list_widget
-                src_item_for_move = item
+            mover_menu = QMenu(get_text("🔀 Mover para outro quadrante"), app)
 
             for idx, label in enumerate(opts):
                 a = QAction(label, app)
-                def _make_handler(i, source_list=src_list_for_move, source_item=src_item_for_move):
+                def _make_handler(i):
                     def _handler():
                         try:
-                            keep_completed = _is_completed_list(app, source_list)
-                            target = _target_list_for_quadrant(app, i, keep_completed=keep_completed)
-                            if target is None or target is source_list:
-                                return
+                            for it in selected_items:
+                                source_list, source_item, _ = _resolve_item(it)
+                                keep_completed = _is_completed_list(app, source_list)
+                                target = _target_list_for_quadrant(app, i, keep_completed=keep_completed)
+                                if target is None or target is source_list:
+                                    continue
 
-                            new_state = Qt.Checked if keep_completed else Qt.Unchecked
+                                new_state = Qt.Checked if keep_completed else Qt.Unchecked
 
-                            source_list.blockSignals(True)
-                            target.blockSignals(True)
+                                source_list.blockSignals(True)
+                                target.blockSignals(True)
+                                try:
+                                    app.move_item_between_lists(source_item, source_list, target, new_state)
 
-                            try:
-                                app.move_item_between_lists(source_item, source_list, target, new_state)
-
-                            finally:
-                                source_list.blockSignals(False)
-                                target.blockSignals(False)
+                                finally:
+                                    source_list.blockSignals(False)
+                                    target.blockSignals(False)
 
                             try:
                                 app.save_tasks()
@@ -665,61 +671,55 @@ def mostrar_menu_contexto(app, point, list_widget):
             menu.addMenu(mover_menu)
 
         except Exception:
-            mover_acao = QAction(get_text("Mover para outro quadrante"), app)
+            mover_acao = QAction(get_text("🔀 Mover para outro quadrante"), app)
             mover_acao.triggered.connect(lambda: _move_to_quadrant(app, item, list_widget))
             menu.addAction(mover_acao)
 
         menu.addSeparator()
-        remover_acao = QAction(get_text("Remover Tarefa"), app)
+        remover_acao = QAction(get_text("🗑️ Remover Tarefa"), app)
 
-        try:
-            current_data_for_removal = item.data(Qt.UserRole) or {}
-            if isinstance(current_data_for_removal, dict) and current_data_for_removal.get("category"):
-                src_list_rem, src_item_rem = _find_source_item_for_calendar(app, current_data_for_removal)
-                if src_list_rem is not None and src_item_rem is not None:
-                    def _remove_both():
+        def _remove_selected():
+            try:
+                if len(selected_items) > 1:
+                    reply = QMessageBox.question(
+                        app,
+                        get_text("🗑️ Remover Tarefa"),
+                        get_text("Deseja remover as tarefas selecionadas?") or "Deseja remover as tarefas selecionadas?",
+                        QMessageBox.Yes | QMessageBox.No
+                    )
+                    if reply != QMessageBox.Yes:
+                        return
+
+                for it in selected_items:
+                    src_list_rem, src_item_rem, remove_calendar_item = _resolve_item(it)
+                    removed = app.remove_task(src_item_rem, src_list_rem, confirm=False)
+                    if not removed:
+                        continue
+
+                    if remove_calendar_item:
                         try:
-                            removed = app.remove_task(src_item_rem, src_list_rem, True)
-                            if not removed:
-                                return
-
-                            try:
-                                if item is not None and list_widget is not None:
-                                    try:
-                                        list_widget.takeItem(list_widget.row(item))
-
-                                    except Exception:
-                                        pass
-
-                            except Exception:
-                                pass
-
-                            try:
-                                app.save_tasks()
-
-                            except Exception:
-                                pass
-
-                            try:
-                                if hasattr(app, "calendar_pane") and app.calendar_pane:
-                                    app.calendar_pane.calendar_panel.update_task_list()
-
-                            except Exception:
-                                pass
+                            list_widget.takeItem(list_widget.row(it))
 
                         except Exception:
                             pass
 
-                    remover_acao.triggered.connect(_remove_both)
+                try:
+                    app.save_tasks()
 
-                else:
-                    remover_acao.triggered.connect(lambda: app.remove_task(item, list_widget))
+                except Exception:
+                    pass
 
-            else:
-                remover_acao.triggered.connect(lambda: app.remove_task(item, list_widget))
+                try:
+                    if hasattr(app, "calendar_pane") and app.calendar_pane:
+                        app.calendar_pane.calendar_panel.update_task_list()
 
-        except Exception:
-            remover_acao.triggered.connect(lambda: app.remove_task(item, list_widget))
+                except Exception:
+                    pass
+
+            except Exception:
+                pass
+
+        remover_acao.triggered.connect(_remove_selected)
 
         menu.addAction(remover_acao)
         menu.exec(list_widget.mapToGlobal(point))

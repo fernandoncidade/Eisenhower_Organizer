@@ -60,7 +60,7 @@ def remove_task(app, item, list_widget, confirm: bool = True) -> bool:
 
         if confirm:
             msg = QMessageBox(app)
-            msg.setWindowTitle(get_text("Remover Tarefa"))
+            msg.setWindowTitle(get_text("🗑️ Remover Tarefa"))
             msg.setText(get_text("Deseja remover a tarefa '{item}'?").replace("{item}", item.text()))
             btn_yes = msg.addButton(get_text("Yes"), QMessageBox.YesRole)
             btn_no = msg.addButton(get_text("No"), QMessageBox.NoRole)

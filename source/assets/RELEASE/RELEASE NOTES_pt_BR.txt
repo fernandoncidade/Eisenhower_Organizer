@@ -1,3 +1,25 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.4.0
+Data: 4 de fevereiro de 2026
+
+Principais novidades:
+- Seleção por arraste aprimorada: é possível selecionar várias tarefas arrastando o mouse sobre elas; a seleção atual não é perdida e o retângulo de seleção aparece apenas durante o arraste.
+- Seleção persistente corrigida: ao selecionar múltiplas tarefas e clicar em qualquer uma delas, a seleção permanece e não gera caixas de seleção residuais.
+- Arrastar várias tarefas: agora é possível arrastar e mover várias tarefas selecionadas entre quaisquer quadrantes, repetidas vezes, sem perder a seleção.
+- Ações em lote no menu de contexto: as opções de mover e remover aplicam-se a várias tarefas simultaneamente, com confirmação quando necessário.
+- Diálogo de edição consolidado: edição de texto, descrição, data/hora e arquivo vinculado reunidos em um diálogo único mais simples e acessível.
+- Calendário e sincronização: contadores e destaques do calendário atualizam imediatamente após alterações nas tarefas; visualização rápida das tarefas por dia/semana/mês melhorada.
+- Robustez e salvamento: operações de movimentação, edição e remoção foram reforçadas para evitar perda ou duplicação de tarefas; salvamento automático consistente.
+
+Correções e ajustes:
+- Eliminação de retângulos de seleção persistentes após operações de clique/arraste.
+- Melhoria na atualização de visualizações e tooltips para refletir mudanças em tempo real.
+- Confirmações mais claras para remoção em lote e mensagens de erro amigáveis em falhas.
+
+Observações:
+- As mudanças visam melhorar a experiência de seleção múltipla, drag-and-drop e gestão em lote de tarefas, mantendo o fluxo simples e confiável para o usuário final.
+
+______________________________
+
 NOTAS DE LANÇAMENTO: Versão 0.1.3.0
 Data: 3 de fevereiro de 2026
 

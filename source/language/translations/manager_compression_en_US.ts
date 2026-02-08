@@ -112,8 +112,8 @@
         <translation>The task cannot be empty.</translation>
     </message>
     <message>
-        <source>Remover Tarefa</source>
-        <translation>Remove Task</translation>
+        <source>🗑️ Remover Tarefa</source>
+        <translation>🗑️ Remove Task</translation>
     </message>
     <message>
         <source>Deseja remover a tarefa '{item}'?</source>
@@ -372,12 +372,12 @@
         <translation>Priority</translation>
     </message>
     <message>
-        <source>Editar Tarefa...</source>
-        <translation>Edit Task...</translation>
+        <source>✏️ Editar Tarefa...</source>
+        <translation>✏️ Edit Task...</translation>
     </message>
     <message>
-        <source>Editar Tarefa</source>
-        <translation>Edit Task</translation>
+        <source>✏️ Editar Tarefa</source>
+        <translation>✏️ Edit Task</translation>
     </message>
     <message>
         <source>Tarefa:</source>
@@ -408,8 +408,8 @@
         <translation>Global Task List:</translation>
     </message>
     <message>
-        <source>Mover para outro quadrante</source>
-        <translation>Move to another quadrant</translation>
+        <source>🔀 Mover para outro quadrante</source>
+        <translation>🔀 Move to another quadrant</translation>
     </message>
     <message>
         <source>Editar data/horário...</source>
@@ -430,6 +430,10 @@
     <message>
         <source>Mostrar prioridade</source>
         <translation>Show priority</translation>
+    </message>
+    <message>
+      <source>Deseja remover as tarefas selecionadas?</source>
+      <translation>Do you want to remove the selected tasks?</translation>
     </message>
 </context>
 </TS>

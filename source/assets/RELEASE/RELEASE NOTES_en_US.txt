@@ -1,3 +1,25 @@
+RELEASE NOTES: Version 0.1.4.0
+Date: February 4, 2026
+
+Highlights:
+- Improved drag selection: you can select multiple tasks by dragging the mouse over them; the current selection is preserved and the selection rectangle is visible only during the drag.
+- Persistent selection fixed: when selecting multiple tasks and clicking any of them, the selection remains and no residual selection boxes are created.
+- Drag multiple tasks: it is now possible to drag and move multiple selected tasks between any quadrants, repeatedly, without losing the selection.
+- Batch actions in the context menu: move and remove options apply to multiple tasks at once, with confirmation when necessary.
+- Consolidated edit dialog: text, description, date/time, and linked file editing are gathered in a single, simpler and more accessible dialog.
+- Calendar and synchronization: calendar counters and highlights update immediately after task changes; quick view of tasks by day/week/month improved.
+- Robustness and saving: move, edit, and remove operations have been reinforced to prevent loss or duplication of tasks; consistent auto-save.
+
+Fixes and adjustments:
+- Removal of persistent selection rectangles after click/drag operations.
+- Improved updating of views and tooltips to reflect changes in real time.
+- Clearer confirmations for batch removal and user-friendly error messages on failures.
+
+Notes:
+- Changes aim to improve the experience of multiple selection, drag-and-drop, and batch task management, keeping the flow simple and reliable for end users.
+
+______________________________
+
 RELEASE NOTES: Version 0.1.3.0
 Date: February 3, 2026
 

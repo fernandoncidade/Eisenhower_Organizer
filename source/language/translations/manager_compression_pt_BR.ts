@@ -112,8 +112,8 @@
         <translation>A tarefa não pode estar vazia.</translation>
     </message>
     <message>
-        <source>Remover Tarefa</source>
-        <translation>Remover Tarefa</translation>
+        <source>🗑️ Remover Tarefa</source>
+        <translation>🗑️ Remover Tarefa</translation>
     </message>
     <message>
         <source>Deseja remover a tarefa '{item}'?</source>
@@ -372,12 +372,12 @@
         <translation>Prioridade</translation>
     </message>
     <message>
-        <source>Editar Tarefa...</source>
-        <translation>Editar Tarefa...</translation>
+        <source>✏️ Editar Tarefa...</source>
+        <translation>✏️ Editar Tarefa...</translation>
     </message>
     <message>
-        <source>Editar Tarefa</source>
-        <translation>Editar Tarefa</translation>
+        <source>✏️ Editar Tarefa</source>
+        <translation>✏️ Editar Tarefa</translation>
     </message>
     <message>
         <source>Tarefa:</source>
@@ -408,8 +408,8 @@
         <translation>Lista Global de Tarefas:</translation>
     </message>
     <message>
-        <source>Mover para outro quadrante</source>
-        <translation>Mover para outro quadrante</translation>
+        <source>🔀 Mover para outro quadrante</source>
+        <translation>🔀 Mover para outro quadrante</translation>
     </message>
     <message>
         <source>Editar data/horário...</source>
@@ -430,6 +430,10 @@
     <message>
         <source>Mostrar prioridade</source>
         <translation>Mostrar prioridade</translation>
+    </message>
+    <message>
+      <source>Deseja remover as tarefas selecionadas?</source>
+      <translation>Deseja remover as tarefas selecionadas?</translation>
     </message>
 </context>
 </TS>

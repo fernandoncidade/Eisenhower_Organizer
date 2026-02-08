@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtCore import Qt, QPoint, QItemSelectionModel
 from PySide6.QtWidgets import QListWidget, QAbstractItemView, QLabel, QApplication
 from PySide6.QtGui import QDrag, QFont, QPalette, QColor
 from source.utils.LogManager import LogManager
@@ -11,7 +11,14 @@ class TaskListWidget(QListWidget):
         self._app = app
         self._is_completed = bool(is_completed)
 
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.setSelectionBehavior(QAbstractItemView.SelectItems)
+        try:
+            self.setSelectionRectVisible(True)
+
+        except Exception:
+            pass
+
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
         self.setDropIndicatorShown(True)
@@ -23,11 +30,15 @@ class TaskListWidget(QListWidget):
             self._hover_preview = None
             self._current_hover_item = None
             self._drag_start_pos = None
+            self._drag_start_item = None
+            self._selection_rect_enabled = True
 
         except Exception:
             self._hover_preview = None
             self._current_hover_item = None
             self._drag_start_pos = None
+            self._drag_start_item = None
+            self._selection_rect_enabled = True
 
     def _create_preview_widget(self):
         lbl = QLabel(None, Qt.ToolTip)
@@ -125,20 +136,26 @@ class TaskListWidget(QListWidget):
             elif item is None:
                 self._hide_preview()
 
+            drag_started = False
             try:
                 if event.buttons() & Qt.LeftButton and self._drag_start_pos is not None:
-                    delta = event.pos() - self._drag_start_pos
-                    if delta.manhattanLength() >= QApplication.startDragDistance():
-                        if not self.selectedItems():
-                            start_item = self.itemAt(self._drag_start_pos)
-                            if start_item:
+                    start_item = self._drag_start_item if self._drag_start_item is not None else self.itemAt(self._drag_start_pos)
+                    if start_item and start_item.isSelected():
+                        delta = event.pos() - self._drag_start_pos
+                        if delta.manhattanLength() >= QApplication.startDragDistance():
+                            if not self.selectedItems():
                                 self.setCurrentItem(start_item)
 
-                        self.startDrag(Qt.MoveAction)
-                        self._drag_start_pos = None
+                            self.startDrag(Qt.MoveAction)
+                            self._drag_start_pos = None
+                            self._drag_start_item = None
+                            drag_started = True
 
             except Exception:
                 pass
+
+            if not drag_started:
+                super().mouseMoveEvent(event)
 
         except Exception:
             pass
@@ -147,6 +164,26 @@ class TaskListWidget(QListWidget):
         try:
             if event.button() == Qt.LeftButton:
                 self._drag_start_pos = event.pos()
+                item = self.itemAt(event.pos())
+                self._drag_start_item = item
+                modifiers = event.modifiers()
+                if item is not None and item.isSelected() and not (modifiers & (Qt.ControlModifier | Qt.ShiftModifier)):
+                    try:
+                        self._selection_rect_enabled = False
+                        self.setSelectionRectVisible(False)
+
+                    except Exception:
+                        pass
+
+                    self.setCurrentItem(item, QItemSelectionModel.NoUpdate)
+                    return
+
+                try:
+                    self._selection_rect_enabled = True
+                    self.setSelectionRectVisible(True)
+
+                except Exception:
+                    pass
 
         except Exception:
             pass
@@ -161,6 +198,26 @@ class TaskListWidget(QListWidget):
             pass
 
         super().leaveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        try:
+            if event.button() == Qt.LeftButton:
+                super().mouseReleaseEvent(event)
+                if not self._selection_rect_enabled:
+                    try:
+                        self.setSelectionRectVisible(False)
+
+                    except Exception:
+                        pass
+
+                self._drag_start_pos = None
+                self._drag_start_item = None
+                return
+
+        except Exception:
+            pass
+
+        super().mouseReleaseEvent(event)
 
     def startDrag(self, supportedActions):
         try:
@@ -189,13 +246,8 @@ class TaskListWidget(QListWidget):
                 event.ignore()
                 return
 
-            dragged_items = source.selectedItems()
+            dragged_items = [it for it in source.selectedItems() if (it.flags() & Qt.ItemIsSelectable)]
             if not dragged_items:
-                event.ignore()
-                return
-
-            item = dragged_items[0]
-            if not (item.flags() & Qt.ItemIsSelectable):
                 event.ignore()
                 return
 
@@ -204,7 +256,11 @@ class TaskListWidget(QListWidget):
             source.blockSignals(True)
             self.blockSignals(True)
             try:
-                self._app.move_item_between_lists(item, source, self, new_state)
+                for item in list(dragged_items):
+                    if not (item.flags() & Qt.ItemIsSelectable):
+                        continue
+
+                    self._app.move_item_between_lists(item, source, self, new_state)
 
             finally:
                 source.blockSignals(False)
