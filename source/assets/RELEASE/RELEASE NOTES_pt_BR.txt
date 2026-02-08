@@ -1,3 +1,21 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.7.0
+Data: 7 de fevereiro de 2026
+
+Principais novidades:
+- Redimensionamento mais confiável: a janela agora se ajusta ao espaço disponível do monitor.
+- Painel de calendário mais estável: abrir e fechar o painel ajusta o tamanho da janela de forma previsível, sem causar comportamento inesperado.
+- Melhor compatibilidade com múltiplos monitores e diferentes escalas, mantendo a interface utilizável em telas estreitas.
+
+Correções e ajustes:
+- Redução de flicker e aprimoramento na atualização de contadores e destaques do calendário.
+- Correções de estabilidade em operações de calendário e ações em lote (mover/remover).
+- Mensagens e diálogos de confirmação refinados para maior clareza.
+
+Observações:
+- Nenhuma ação é necessária por parte do usuário; os dados existentes continuam compatíveis e preservados.
+
+______________________________
+
 NOTAS DE LANÇAMENTO: Versão 0.1.6.0
 Data: 6 de fevereiro de 2026
 

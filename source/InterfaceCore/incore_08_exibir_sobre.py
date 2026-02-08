@@ -33,7 +33,7 @@ def _tr_multi(key: str) -> str:
 def _build_cabecalho_fixo() -> str:
     return (
         "<h3>EISENHOWER ORGANIZER</h3>"
-        f"<p><b>{_tr_multi('version') or 'Version'}:</b> 0.1.6.0</p>"
+        f"<p><b>{_tr_multi('version') or 'Version'}:</b> 0.1.7.0</p>"
         f"<p><b>{_tr_multi('authors') or 'Authors'}:</b> Fernando Nillsson Cidade</p>"
         f"<p><b>{_tr_multi('description') or 'Description'}:</b> {_tr_multi('description_text') or ''}</p>"
     )

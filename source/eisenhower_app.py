@@ -43,7 +43,9 @@ class EisenhowerMatrixApp(QMainWindow):
         self.gerenciador_traducao.aplicar_traducao()
 
         self.setWindowTitle(get_text("Matriz de Eisenhower - Organizador de Tarefas"))
-        self.setGeometry(100, 100, 1000, 700)
+        self.setMinimumSize(400, 200)
+        self.resize(1000, 700)
+        self.move(100, 100)
 
         icon_path = get_icon_path("organizador.ico")
         if icon_path:
@@ -56,6 +58,7 @@ class EisenhowerMatrixApp(QMainWindow):
         self.initUI()
         self.load_tasks()
         self.criar_menu_configuracoes()
+        QTimer.singleShot(0, self._clamp_window_to_screen)
 
     def closeEvent(self, event):
         try:
@@ -107,6 +110,29 @@ class EisenhowerMatrixApp(QMainWindow):
 
         except Exception as e:
             logger.error(f"Erro ao ocultar botão legado do calendário: {e}", exc_info=True)
+
+    def _clamp_window_to_screen(self):
+        try:
+            wh = self.windowHandle()
+            screen = wh.screen() if wh and wh.screen() else self.screen()
+            if screen is None:
+                return
+
+            avail = screen.availableGeometry()
+            geo = self.geometry()
+            new_w = min(geo.width(), avail.width())
+            new_h = min(geo.height(), avail.height())
+            new_x = max(avail.x(), min(geo.x(), avail.x() + avail.width() - new_w))
+            new_y = max(avail.y(), min(geo.y(), avail.y() + avail.height() - new_h))
+
+            if new_w != geo.width() or new_h != geo.height():
+                self.resize(new_w, new_h)
+
+            if new_x != geo.x() or new_y != geo.y():
+                self.move(new_x, new_y)
+
+        except Exception as e:
+            logger.error(f"Erro ao ajustar janela ao monitor: {e}", exc_info=True)
 
     def add_placeholder(self, list_widget, text):
         core_add_placeholder(self, list_widget, text)

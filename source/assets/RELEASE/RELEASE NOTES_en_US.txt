@@ -1,3 +1,21 @@
+RELEASE NOTES: Version 0.1.7.0
+Date: February 7, 2026
+
+Main highlights:
+- More reliable resizing: the window now adjusts to the available monitor space.
+- More stable calendar panel: opening and closing the panel adjusts the window size predictably, without causing unexpected behavior.
+- Improved compatibility with multiple monitors and different scaling, keeping the interface usable on narrow screens.
+
+Fixes and tweaks:
+- Reduced flicker and improved updating of calendar counters and highlights.
+- Stability fixes for calendar operations and batch actions (move/remove).
+- Confirmation messages and dialogs refined for greater clarity.
+
+Notes:
+- No action is required from the user; existing data remains compatible and preserved.
+
+______________________________
+
 RELEASE NOTES: Version 0.1.6.0
 Date: February 6, 2026
 

@@ -41,6 +41,22 @@ class Calendar(QWidget):
         except Exception as e:
             logger.error(f"Erro ao inicializar Calendar: {e}", exc_info=True)
 
+    def reduce_panel_width(self, shrink_by: int, min_width: int = 220):
+        try:
+            if shrink_by <= 0:
+                return
+
+            new_width = max(min_width, self._panel_width - int(shrink_by))
+            if new_width == self._panel_width:
+                return
+
+            self._panel_width = new_width
+            self.calendar_panel.setFixedWidth(self._panel_width)
+            self._apply_fixed_width()
+
+        except Exception as e:
+            logger.error(f"Erro ao reduzir largura do painel: {e}", exc_info=True)
+
     def _apply_fixed_width(self):
         try:
             btn_w = self.toggle_button.width()
