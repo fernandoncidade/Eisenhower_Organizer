@@ -1,3 +1,25 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.3.0
+Data: 3 de fevereiro de 2026
+
+Principais novidades:
+- Consolidação da edição: as opções de adicionar/editar descrição, abrir arquivo vinculado e editar data/horário foram movidas do menu de contexto para dentro da janela "Editar Tarefa". Agora é possível gerenciar texto, arquivo vinculado, descrição, data e horário em um único diálogo mais completo e acessível.
+- Diálogo "Editar Tarefa" enriquecido: o diálogo permite escolher, abrir ou remover arquivo vinculado, editar descrição com pré-visualização, e vincular/desvincular data e horário de forma independente, mantendo formatos locais.
+- Menu de contexto simplificado: o menu ficou mais enxuto e direto, com foco nas ações rápidas (mover, remover, editar), enquanto as edições detalhadas seguem pelo diálogo unificado.
+- Tooltips aprimorados: pré-visualizações exibem, de forma ordenada, data, horário, arquivo vinculado, descrição resumida e prioridade, facilitando leitura sem abrir diálogos.
+- Abertura de arquivos mais robusta: tentativas de abrir arquivos vinculados usam mecanismos nativos como fallback, com mensagens e logging mais claros em falhas.
+- Sincronização e consistência: melhorias na atualização entre listas e calendário garantem que alterações feitas no diálogo reflitam imediatamente no painel de calendário e nos contadores (badges).
+- Localidade consistente: seletores de data/hora e popups aplicam corretamente o idioma ativo, mantendo formatos e rótulos coerentes após troca de idioma.
+- Correções importantes:
+  - Evita duplicação ou perda de tarefas ao editar/alterar data ou mover entre quadrantes.
+  - Limpeza reforçada de cabeçalhos de horário órfãos após edições ou remoções.
+  - Salvamento e atualização imediata das listas e do calendário após alterações no diálogo de edição.
+
+Observações:
+- Fluxo de edição mais integrado e intuitivo para usuários leigos: tudo relacionado a uma tarefa (texto, arquivo, descrição, data/hora, prioridade) está acessível a partir do mesmo lugar.
+- Nenhum formato de arquivo ou mecanismo de persistência foi alterado; os dados continuam sendo armazenados localmente.
+
+______________________________
+
 NOTAS DE LANÇAMENTO: Versão 0.1.2.0
 Data: 2 de fevereiro de 2026
 
@@ -21,9 +43,7 @@ Observações:
 - Nenhum formato de arquivo ou mecanismo de salvamento foi alterado; os dados permanecem armazenados localmente.
 - O aplicativo mantém operação totalmente offline — nenhum dado é enviado a servidores externos.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.1.1.0
 Data: 1 de fevereiro de 2026
@@ -56,9 +76,7 @@ Observações:
 - Nenhum formato de arquivo ou mecanismo de salvamento foi alterado; os dados permanecem armazenados localmente.
 - O aplicativo mantém operação totalmente offline — nenhum dado é enviado a servidores externos.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.1.0.0
 Data: 21 de janeiro de 2026
@@ -100,9 +118,7 @@ Observações:
 - Nenhum formato de arquivo ou mecanismo de salvamento foi alterado; os dados permanecem armazenados localmente.
 - O aplicativo mantém operação totalmente offline — nenhum dado é enviado a servidores externos.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.9.0
 Data: 16 de janeiro de 2026
@@ -126,9 +142,7 @@ Observações:
 - Nenhum formato de arquivo ou mecanismo de salvamento foi alterado; os dados continuam sendo armazenados localmente.
 - O aplicativo opera totalmente offline — nenhum dado é enviado a servidores externos.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.8.0
 Data: 15 de janeiro de 2026
@@ -192,9 +206,7 @@ Correções específicas no módulo:
 - Evita erros silenciosos ao aplicar traduções e ao atualizar componentes de data/horário em tempo de execução.
 - Garantia de que os controles de horário só fiquem ativos quando apropriado (data vinculada) para evitar entradas inválidas.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.7.0
 Data: 12 de janeiro de 2026
@@ -215,9 +227,7 @@ Observações:
 - Mudanças focadas em usabilidade e robustez; nenhum formato de arquivo ou mecanismo de salvamento foi alterado.
 - Aplicativo continua operando offline — nenhum dado é enviado a servidores externos.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.6.0
 Data: 22 de dezembro de 2025
@@ -242,9 +252,7 @@ Observações:
 - Caso queira exibir contadores de semana/mês na interface, os métodos já expostos no widget permitem recuperá-los para uso adicional.
 - Nenhum comportamento de salvamento ou formato de arquivo foi alterado; esta versão foca em melhorias visuais e de sincronização entre listas e calendário.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.5.0
 Data: 21 de dezembro de 2025
@@ -265,9 +273,7 @@ Observações:
 - O aplicativo continua operando offline — nenhum dado é enviado para servidores externos.
 - O salvamento automático permanece ativo; atualize para aplicar as melhorias de arrastar/soltar e estabilidade.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.4.0
 Data: 21 de dezembro de 2025
@@ -291,9 +297,7 @@ Observações:
 - O aplicativo continua operando offline — nenhum dado é enviado para servidores externos.
 - Salvamento automático permanece ativo; atualize para garantir que a nova ordenação e agrupamento sejam aplicados às suas tarefas.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.3.0
 Data: 4 de novembro de 2025
@@ -302,9 +306,7 @@ Novidades e melhorias principais:
 - Agora é possível vincular um horário a cada tarefa.
 - Ao vincular um horário, a tarefa aparece no quadrante de diálogo e no diálogo do calendário com data e hora associadas corretamente.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.2.0
 Data: 14 de outubro de 2025
@@ -328,9 +330,7 @@ Correções importantes
 Observaçõesa
 - O aplicativo funciona offline — nenhum dado é enviado para servidores externos.
 
-
 ______________________________
-
 
 NOTAS DE LANÇAMENTO: Versão 0.0.1.0
 Data: 23 de setembro de 2025

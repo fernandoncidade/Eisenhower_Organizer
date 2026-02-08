@@ -1,3 +1,25 @@
+RELEASE NOTES: Version 0.1.3.0
+Date: February 3, 2026
+
+Main highlights:
+- Consolidation of editing: the options to add/edit description, open a linked file, and edit date/time have been moved from the context menu into the "Edit Task" window. You can now manage text, linked file, description, date, and time in a single, more complete and accessible dialog.
+- Enriched "Edit Task" dialog: the dialog allows choosing, opening, or removing a linked file, editing the description with preview, and linking/unlinking date and time independently while preserving local formats.
+- Simplified context menu: the menu is leaner and more direct, focusing on quick actions (move, remove, edit), while detailed edits are handled by the unified dialog.
+- Improved tooltips: previews display, in an ordered way, date, time, linked file, summarized description, and priority, making it easier to read without opening dialogs.
+- More robust file opening: attempts to open linked files use native mechanisms as a fallback, with clearer user messages and logging on failures.
+- Synchronization and consistency: improvements in updates between lists and the calendar ensure that changes made in the dialog are reflected immediately in the calendar pane and badges.
+- Consistent locale: date/time selectors and popups correctly apply the active language, keeping formats and labels coherent after switching language.
+- Important fixes:
+  - Prevents duplication or loss of tasks when editing/changing date or moving between quadrants.
+  - Reinforced cleanup of orphaned time headers after edits or removals.
+  - Immediate saving and updating of lists and the calendar after changes in the edit dialog.
+
+Notes:
+- A more integrated and intuitive editing flow for non-technical users: everything related to a task (text, file, description, date/time, priority) is accessible from one place.
+- No file format or persistence mechanism has been changed; data continues to be stored locally.
+
+______________________________
+
 RELEASE NOTES: Version 0.1.2.0
 Date: February 2, 2026
 
@@ -21,9 +43,7 @@ Notes:
 - No file format or storage mechanism was changed; data remains stored locally.
 - The application remains fully offline — no data is sent to external servers.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.1.1.0
 Date: February 1, 2026
@@ -56,9 +76,7 @@ Notes:
 - No file format or saving mechanism has been changed; data remains stored locally.
 - The application remains fully offline — no data is sent to external servers.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.1.0.0
 Date: January 21, 2026
@@ -100,9 +118,7 @@ Notes:
 - No file format or saving mechanism has been changed; data remains stored locally.
 - The application remains fully offline — no data is sent to external servers.
 
-
 ______________________________
-
 
 NOTES: Version 0.0.9.0
 Date: January 16, 2026
@@ -126,9 +142,7 @@ Notes:
 - No file format or saving mechanism was changed; data continues to be stored locally.
 - The application works fully offline — no data is sent to external servers.
 
-
 ______________________________
-
 
 NOTES: Version 0.0.8.0
 Date: January 15, 2026
@@ -192,9 +206,7 @@ Module-specific fixes:
 - Avoids silent errors when applying translations and updating date/time components at runtime.
 - Ensures time controls are only enabled when appropriate (date linked) to prevent invalid entries.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.0.7.0
 Date: January 12, 2026
@@ -215,9 +227,7 @@ Notes:
 - Changes focused on usability and robustness; no file format or saving mechanism was changed.
 - App continues to operate offline — no data is sent to external servers.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.0.6.0
 Date: December 22, 2025
@@ -242,9 +252,7 @@ Notes:
 - If you want to show week/month counters in the UI, the methods already exposed in the widget allow retrieving them for additional use.
 - No save behavior or file formats were changed; this release focuses on visual improvements and synchronization between lists and the calendar.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.0.5.0
 Date: 21 December 2025
@@ -265,9 +273,7 @@ Notes:
 - The application continues to operate offline — no data is sent to external servers.
 - Auto-save remains active; update to apply the drag-and-drop and stability improvements.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.0.4.0
 Date: 21 December 2025
@@ -291,9 +297,7 @@ Notes:
 - The application continues to operate offline — no data is sent to external servers.
 - Auto-save remains active; please update to apply the new ordering and grouping to your tasks.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.0.3.0
 Date: November 4, 2025
@@ -302,9 +306,7 @@ Main new features and improvements:
 - It is now possible to assign a time to each task.
 - When a time is assigned, the task appears in the quadrant dialog and in the calendar dialog with the associated date and time displayed correctly.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.0.2.0
 Date: October 14, 2025
@@ -328,9 +330,7 @@ Important fixes
 Notes
 - The application works offline — no data is sent to external servers.
 
-
 ______________________________
-
 
 RELEASE NOTES: Version 0.0.1.0
 Date: September 23, 2025

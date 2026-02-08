@@ -423,5 +423,13 @@
         <source>Deseja remover todas as tarefas deste dia?</source>
         <translation>Deseja remover todas as tarefas deste dia?</translation>
     </message>
+    <message>
+        <source>Data e horário (opcional):</source>
+        <translation>Data e horário (opcional):</translation>
+    </message>
+    <message>
+        <source>Mostrar prioridade</source>
+        <translation>Mostrar prioridade</translation>
+    </message>
 </context>
 </TS>
