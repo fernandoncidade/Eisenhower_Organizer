@@ -1,9 +1,9 @@
 import os
 from PySide6.QtCore import QCoreApplication, Qt
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QPushButton
-from utils.IconUtils import get_icon_path
-from utils.CaminhoPersistenteUtils import obter_caminho_persistente
-from language.tr_01_gerenciadorTraducao import GerenciadorTraducao
+from source.utils.IconUtils import get_icon_path
+from source.utils.CaminhoPersistenteUtils import obter_caminho_persistente
+from source.language.tr_01_gerenciadorTraducao import GerenciadorTraducao
 from source.InterfaceCore.incore_01_initUI import init_ui as core_init_ui
 from source.InterfaceCore.incore_02_add_placeholder import add_placeholder as core_add_placeholder
 from source.InterfaceCore.incore_03_criar_menu_configuracoes import criar_menu_configuracoes as core_criar_menu
@@ -20,7 +20,9 @@ from source.GerenciamentoUI.ui_06_remove_task import remove_task as ui_remove_ta
 from source.GerenciamentoUI.ui_07_save_tasks import save_tasks as ui_save_tasks
 from source.GerenciamentoUI.ui_08_load_tasks import load_tasks as ui_load_tasks
 from source.GerenciamentoUI.ui_09_Calendar import Calendar
-from utils.LogManager import LogManager
+from source.GerenciamentoUI.ui_10_edit_task import edit_task_datetime as ui_edit_task_datetime
+from source.GerenciamentoUI.ui_10_edit_task import move_task_to_quadrant as ui_move_task_to_quadrant
+from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 
 def get_text(text):
@@ -293,3 +295,9 @@ class EisenhowerMatrixApp(QMainWindow):
 
     def sair_app(self):
         arquivo_sair(self)
+
+    def edit_task_datetime(self, item, list_widget):
+        ui_edit_task_datetime(self, item, list_widget)
+
+    def move_task_to_quadrant(self, item, source_list, target_list):
+        ui_move_task_to_quadrant(self, item, source_list, target_list)

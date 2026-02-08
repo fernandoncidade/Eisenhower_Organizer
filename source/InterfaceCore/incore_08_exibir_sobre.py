@@ -10,7 +10,7 @@ from source.GerenciamentoUI.ui_02_OpcoesSobre import (
     RELEASE_NOTES_pt_BR, RELEASE_NOTES_en_US
 )
 from PySide6.QtWidgets import QMessageBox
-from utils.LogManager import LogManager
+from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 
 def get_text(text):
@@ -35,7 +35,7 @@ def exibir_sobre(app):
 
         cabecalho_fixo = (
             "<h3>EISENHOWER ORGANIZER</h3>"
-            f"<p><b>{get_text('version') or 'Version'}:</b> 0.0.3.0</p>"
+            f"<p><b>{get_text('version') or 'Version'}:</b> 0.0.4.0</p>"
             f"<p><b>{get_text('authors') or 'Authors'}:</b> Fernando Nillsson Cidade</p>"
             f"<p><b>{get_text('description') or 'Description'}:</b> {get_text('description_text') or ''}</p>"
         )

@@ -1,0 +1,81 @@
+RELEASE NOTES: Version 0.0.4.0
+Date: 21 December 2025
+
+Key improvements and features:
+- Time grouping: tasks with a time now appear grouped by hour range (e.g., 09:00–09:59) within each quadrant, making it easier to view the day.
+- Improved ordering: tasks are sorted by time first and then by text to help you find items quickly.
+- Drag-and-drop support: move tasks between quadrants and between completed lists intuitively using drag-and-drop.
+- Improved date/time edit dialog: easier to reset or remove a task's date and time; options respect the application's locale date/time format.
+- More comfortable time inputs: time control uses wrapping behavior for smoother minute navigation.
+- Calendar pane integration: the side calendar panel remains integrated and automatically updates the task list when items change.
+- Localization and formats: better language support and automatic adjustment of date/time formats based on the selected language.
+- Usability: refinements to labels, placeholders and context menus (move task, reset date, remove) for a clearer workflow.
+
+Important fixes:
+- Automatic removal of empty time headers to avoid orphaned items in lists.
+- Fixes to prevent task loss when moving/editing items and improved error handling for common operations.
+- Small adjustments to keep placeholders consistent when lists become empty.
+
+Notes:
+- The application continues to operate offline — no data is sent to external servers.
+- Auto-save remains active; please update to apply the new ordering and grouping to your tasks.
+
+
+______________________________
+
+
+RELEASE NOTES: Version 0.0.3.0
+Date: November 4, 2025
+
+Main new features and improvements:
+- It is now possible to assign a time to each task.
+- When a time is assigned, the task appears in the quadrant dialog and in the calendar dialog with the associated date and time displayed correctly.
+
+
+______________________________
+
+
+RELEASE NOTES: Version 0.0.2.0
+Date: October 14, 2025
+
+User summary
+- New release with useful features and fixes that make the application easier to use and more reliable.
+
+Main new features and improvements
+- Side Calendar Panel: there is now a collapsible calendar panel alongside the window to quickly view dates.
+- Updated Calendar Dialog: you can filter by Day, Week, or Month and see tasks linked to the selected date.
+- Languages and date format: the interface and date formats adapt to the selected language (for example, Portuguese or English).
+- Date display: dates are shown in the local format; when available, the task tooltip shows the date clearly formatted.
+- Improved auto-save: tasks continue to be saved in tasks.json (text and date are stored).
+- Simplified Import/Export: it is possible to import and export tasks in Excel (.xlsx) and PDF. If any feature requires additional software on your computer, the app clearly notifies the user.
+- Usability improvements: texts, placeholders and menus were rearranged to make the app easier to use.
+- More robust error handling: unexpected situations produce friendly messages instead of crashes.
+
+Important fixes
+- Small adjustments to avoid data loss and improve stability.
+
+Notes
+- The application works offline — no data is sent to external servers.
+
+
+______________________________
+
+
+RELEASE NOTES: Version 0.0.1.0
+Date: September 23, 2025
+
+In this new version:
+
+- EISENHOWER ORGANIZER application distributed as a Windows executable, without the need to install Python or dependencies manually.
+- Organization of tasks into the four quadrants of the Eisenhower Matrix, with separate lists for pending and completed tasks.
+- Quick task addition with quadrant selector and automatic movement between lists when marked as completed.
+- Task removal via context menu with confirmation.
+- Automatic persistence of tasks in a local tasks.json file in the user's directory.
+- Export of tasks to XLSX (Excel) and PDF, and import from these formats.
+- Multilingual interface with language selection and immediate text updates.
+- "About" window with history, details, warnings, licenses and privacy policy loaded from resource files.
+- Fully offline operation: no data is sent to external servers.
+- Simple installation via installer, with features and settings ready for immediate use.
+- Solutions for common issues and usage guidance included in the documentation and the "About" window.
+
+For questions, support or suggestions, consult the channels listed in the installer or in the application's documentation.
