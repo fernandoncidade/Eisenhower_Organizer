@@ -96,8 +96,68 @@ def move_item_between_lists(app, item, source, target, new_check_state):
             except Exception:
                 pass
 
-        if tooltip:
-            new_item.setToolTip(tooltip)
+        try:
+            if tooltip:
+                new_item.setToolTip(tooltip)
+
+            else:
+                tooltip_lines = []
+                try:
+                    date_value = date_value
+                    if date_value:
+                        qd = QDate.fromString(date_value, Qt.ISODate)
+                        if qd.isValid() and hasattr(app, "date_input"):
+                            date_human = qd.toString(app.date_input.displayFormat())
+                            tooltip_lines.append((get_text("Data") or "Data") + f": {date_human}")
+
+                except Exception:
+                    pass
+
+                try:
+                    if time_value:
+                        tooltip_lines.append((get_text("Horário") or "Horário") + f": {time_value}")
+
+                except Exception:
+                    pass
+
+                try:
+                    fp = new_data.get("file_path")
+                    if fp:
+                        tooltip_lines.append((get_text("Arquivo") or "Arquivo") + f": {fp}")
+
+                except Exception:
+                    pass
+
+                try:
+                    desc_full = new_data.get("description")
+                    if desc_full:
+                        preview_lines = [ln for ln in desc_full.splitlines() if ln.strip()]
+                        preview = "\n".join(preview_lines[:3])
+                        if preview:
+                            tooltip_lines.append((get_text("Descrição") or "Descrição") + ":")
+                            tooltip_lines.append(preview)
+
+                except Exception:
+                    pass
+
+                try:
+                    prio = new_data.get("priority")
+                    if prio is not None and prio != "":
+                        tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+
+                except Exception:
+                    pass
+
+                if tooltip_lines:
+                    new_item.setToolTip("\n".join(tooltip_lines))
+
+        except Exception:
+            try:
+                if tooltip:
+                    new_item.setToolTip(tooltip)
+
+            except Exception:
+                pass
 
         new_item.setCheckState(new_check_state)
 
@@ -106,6 +166,83 @@ def move_item_between_lists(app, item, source, target, new_check_state):
 
         else:
             target.addItem(new_item)
+
+        if hasattr(app, "cleanup_time_groups"):
+            app.cleanup_time_groups(target)
+
+        try:
+            cp = getattr(app, "calendar_pane", None)
+            if cp is not None and getattr(cp, "calendar_panel", None) is not None:
+                cal_list = getattr(cp.calendar_panel, "tasks_list", None)
+                if cal_list is not None:
+                    for j in range(cal_list.count()):
+                        cit = cal_list.item(j)
+                        if not cit:
+                            continue
+
+                        try:
+                            ct = cit.data(Qt.UserRole) or {}
+                            if (str(ct.get("text") or "").strip() == str(new_data.get("text") or "").strip()) and (ct.get("date") or "") == (new_data.get("date") or "") and (ct.get("time") or "") == (new_data.get("time") or ""):
+
+                                try:
+                                    ct["priority"] = new_data.get("priority")
+                                    cit.setData(Qt.UserRole, ct)
+
+                                except Exception:
+                                    pass
+
+                                try:
+                                    tooltip_lines = []
+                                    ds = ct.get("date")
+                                    if ds:
+                                        qd = QDate.fromString(ds, Qt.ISODate)
+                                        if qd.isValid() and hasattr(app, "date_input"):
+                                            date_human = qd.toString(app.date_input.displayFormat())
+                                            tooltip_lines.append((get_text("Data") or "Data") + f": {date_human}")
+
+                                    tv = ct.get("time")
+                                    if tv:
+                                        tooltip_lines.append((get_text("Horário") or "Horário") + f": {tv}")
+
+                                    try:
+                                        fp = ct.get("file_path")
+                                        if fp:
+                                            tooltip_lines.append((get_text("Arquivo") or "Arquivo") + f": {fp}")
+
+                                    except Exception:
+                                        pass
+
+                                    try:
+                                        desc_full = ct.get("description")
+                                        if desc_full:
+                                            preview_lines = [ln for ln in desc_full.splitlines() if ln.strip()]
+                                            preview = "\n".join(preview_lines[:3])
+                                            if preview:
+                                                tooltip_lines.append((get_text("Descrição") or "Descrição") + ":")
+                                                tooltip_lines.append(preview)
+
+                                    except Exception:
+                                        pass
+
+                                    try:
+                                        prio = ct.get("priority")
+                                        if prio is not None and prio != "":
+                                            tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+
+                                    except Exception:
+                                        pass
+
+                                    if tooltip_lines:
+                                        cit.setToolTip("\n".join(tooltip_lines))
+
+                                except Exception:
+                                    pass
+
+                        except Exception:
+                            continue
+
+        except Exception:
+            pass
 
     except Exception as e:
         logger.error(f"Erro ao mover item entre listas: {e}", exc_info=True)

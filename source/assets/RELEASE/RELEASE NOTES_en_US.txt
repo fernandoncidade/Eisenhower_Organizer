@@ -1,3 +1,47 @@
+RELEASE NOTES: Version 0.1.0.0
+Date: January 21, 2026
+
+Highlights:
+- Collapsible calendar panel integrated into the main window, with a rotated side button to toggle visibility and automatic window resizing when expanding/collapsing.
+- Visual indicators (badges) on calendar days showing task counters; counts available per day, per week and per month.
+- Global task list linked to the calendar: filterable view by day/week/month, rich task preview and opening of linked files by double-click.
+- Improved date/time edit dialog: ability to link/unlink date and time separately, synchronization between the options and application of the local format to the date selector.
+- Grouping of tasks by hourly range within lists (e.g., 09:00–09:59) with hour headers and ordered insertion of tasks by time and text.
+- Native framing around the calendar (frame that follows the system theme) for better integration with the operating system appearance.
+
+Usability and internationalization improvements:
+- Dynamic locale application: calendar, date/time selectors and display formats use the active locale; language changes at runtime update texts and formats.
+- First day of the week set to Sunday in the calendar; date formats taken from the main date control for visual consistency.
+- Task tooltips enriched with information (linked file, date, time, short description and priority) for quick preview without opening dialogs.
+- Items with a linked file receive visual emphasis (bold font and color) for easier identification.
+- Robust placeholders for empty lists, ensuring no "orphan" or non-selectable items remain after removal/movement operations.
+
+Robustness, synchronization and expected behavior:
+- Automatic synchronization of the panel/calendar after task changes (addition, edit, removal, movement between quadrants).
+- Moving tasks between quadrants preserves/updates priority and correctly adjusts completion state.
+- Automatic cleanup of hour headers when there are no tasks in that range, avoiding empty headers.
+- Signal blocking during sensitive operations (drag-and-drop, moves between lists) to prevent duplicate events and loss/duplication of tasks.
+- Consistent persistence: tasks are saved after relevant operations to reduce the risk of data loss.
+
+Accessibility, appearance and auxiliary behaviors:
+- Badges and highlights use colors from the system palette with appropriate transparency for readability in light and dark themes.
+- Date/time controls receive minimum size and palette adjustments for better readability and comfort of use.
+- Platform-specific fallbacks for opening files implemented (native mechanisms when direct opening fails) for greater reliability.
+
+Fixes and important adjustments:
+- Prevents loss or duplication of tasks when moving/editing items between lists.
+- Removes orphan hour headers and fixes unstable ordering when inserting/editing tasks with time.
+- Ensures context menus and dialog texts are updated correctly when changing language at runtime.
+- Expanded exception handling and logging in critical points to reduce visible user failures and ease diagnosis.
+
+Notes:
+- No file format or saving mechanism has been changed; data remains stored locally.
+- The application remains fully offline — no data is sent to external servers.
+
+
+______________________________
+
+
 NOTES: Version 0.0.9.0
 Date: January 16, 2026
 

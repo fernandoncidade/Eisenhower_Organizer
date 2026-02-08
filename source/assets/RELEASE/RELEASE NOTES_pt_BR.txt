@@ -1,3 +1,47 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.0.0
+Data: 21 de janeiro de 2026
+
+Principais novidades:
+- Painel de calendário recolhível integrado à janela principal, com botão lateral rotacionado para alternar exibição e ajuste automático do tamanho da janela ao expandir/recolher.
+- Indicadores visuais (badges) nos dias do calendário mostrando contadores de tarefas; contagem disponível por dia, por semana e por mês.
+- Lista global de tarefas ligada ao calendário: exibição filtrável por dia/semana/mês, pré-visualização rica das tarefas e abertura de arquivos vinculados por duplo clique.
+- Diálogo de edição de data e horário aprimorado: possibilidade de vincular/desvincular data e horário separadamente, sincronização entre as opções e aplicação do formato local ao seletor de datas.
+- Agrupamento de tarefas por faixa horária dentro das listas (ex.: 09:00–09:59) com cabeçalhos por hora e inserção ordenada das tarefas por horário e texto.
+- Visual nativo ao redor do calendário (moldura que acompanha tema do sistema) para melhor integração com aparência do sistema operacional.
+
+Melhorias de usabilidade e internacionalização:
+- Aplicação dinâmica de locale: calendário, seletores de data/horário e formatos de exibição usam o locale ativo; mudanças de idioma em tempo de execução atualizam textos e formatos.
+- Primeiro dia da semana configurado para domingo no calendário; formatos de data obtidos do controle de data principal para consistência visual.
+- Tooltips das tarefas enriquecidos com informações (arquivo vinculado, data, horário, descrição resumida e prioridade) para pré-visualização rápida sem abrir diálogos.
+- Itens com arquivo vinculado recebem destaque visual (fonte em negrito e cor) para facilitar identificação.
+- Placeholders robustos para listas vazias, com garantia de não deixar itens "órfãos" ou não selecionáveis após operações de remoção/movimentação.
+
+Robustez, sincronização e comportamento esperado:
+- Sincronização automática do painel/calendário após alterações nas tarefas (adição, edição, remoção, movimento entre quadrantes).
+- Movimentação de tarefas entre quadrantes preserva/atualiza prioridade e ajusta corretamente o estado de conclusão.
+- Limpeza automática de cabeçalhos de hora quando não há tarefas naquela faixa, evitando cabeçalhos vazios.
+- Bloqueio de sinais durante operações sensíveis (drag-and-drop, movimentos entre listas) para prevenir eventos duplicados e perda/duplicação de tarefas.
+- Persistência consistente: salvamento das tarefas após operações relevantes para reduzir risco de perda de dados.
+
+Acessibilidade, aparência e comportamentos auxiliares:
+- Badges e destaques usam cores da paleta do sistema com transparência apropriada para legibilidade em temas claros e escuros.
+- Controles de data/horário recebem ajustes de tamanho mínimo e paletas para melhor legibilidade e conforto de uso.
+- Fallbacks de abertura de arquivo implementados por plataforma (mecanismos nativos quando a abertura direta falha) para maior confiabilidade.
+
+Correções e ajustes importantes:
+- Evita perda ou duplicação de tarefas ao mover/editar itens entre listas.
+- Remove cabeçalhos de horário órfãos e corrige ordenação instável ao inserir/editar tarefas com horário.
+- Garante que menus de contexto e textos de diálogos sejam atualizados corretamente ao trocar o idioma em tempo de execução.
+- Tratamento ampliado de exceções e logging em pontos críticos para reduzir falhas visíveis ao usuário e facilitar diagnóstico.
+
+Observações:
+- Nenhum formato de arquivo ou mecanismo de salvamento foi alterado; os dados permanecem armazenados localmente.
+- O aplicativo mantém operação totalmente offline — nenhum dado é enviado a servidores externos.
+
+
+______________________________
+
+
 NOTAS DE LANÇAMENTO: Versão 0.0.9.0
 Data: 16 de janeiro de 2026
 

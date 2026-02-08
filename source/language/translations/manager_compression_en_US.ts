@@ -367,5 +367,53 @@
         <source>Deseja vincular o arquivo a esta tarefa?</source>
         <translation>Do you want to link the file to this task?</translation>
     </message>
+    <message>
+        <source>Prioridade</source>
+        <translation>Priority</translation>
+    </message>
+    <message>
+        <source>Editar Tarefa...</source>
+        <translation>Edit Task...</translation>
+    </message>
+    <message>
+        <source>Editar Tarefa</source>
+        <translation>Edit Task</translation>
+    </message>
+    <message>
+        <source>Tarefa:</source>
+        <translation>Task:</translation>
+    </message>
+    <message>
+        <source>Arquivo vinculado (arraste ou escolha):</source>
+        <translation>Linked file (drag or choose):</translation>
+    </message>
+    <message>
+        <source>Escolher...</source>
+        <translation>Choose...</translation>
+    </message>
+    <message>
+        <source>Remover</source>
+        <translation>Remove</translation>
+    </message>
+    <message>
+        <source>Descrição (opcional):</source>
+        <translation>Description (optional):</translation>
+    </message>
+    <message>
+        <source>Abrir Arquivo Vinculado...</source>
+        <translation>Open Linked File...</translation>
+    </message>
+    <message>
+        <source>Lista Global de Tarefas:</source>
+        <translation>Global Task List:</translation>
+    </message>
+    <message>
+        <source>Mover para outro quadrante</source>
+        <translation>Move to another quadrant</translation>
+    </message>
+    <message>
+        <source>Editar data/horário...</source>
+        <translation>Edit date/time...</translation>
+    </message>
 </context>
 </TS>

@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QCalendarWidget, QComboBox, QListWidget, QListWidgetItem, QLabel, QHBoxLayout, QAbstractItemView, QWidget)
-from PySide6.QtCore import Qt, QDate, QCoreApplication, QLocale, QSize, QEvent, QRect
-from PySide6.QtGui import QPainter, QFontMetrics, QTextCharFormat, QBrush, QColor, QFont, QPen
-from PySide6.QtWidgets import QSizePolicy, QStyle, QStyleOptionFrame
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QCalendarWidget, QComboBox, QListWidget, QListWidgetItem,
+                               QLabel, QHBoxLayout, QAbstractItemView, QWidget, QSizePolicy, QStyle, QStyleOptionFrame)
+from PySide6.QtCore import Qt, QDate, QCoreApplication, QLocale, QSize, QEvent, QRect, QObject, QUrl
+from PySide6.QtGui import QPainter, QFontMetrics, QTextCharFormat, QBrush, QColor, QFont, QPen, QPalette, QDesktopServices
+from source.InterfaceCore.incore_07_show_context_menu import show_context_menu
 from source.utils.LogManager import LogManager
 from collections import defaultdict
 logger = LogManager.get_logger()
@@ -199,9 +200,22 @@ class CalendarDialog(QDialog):
             controls_layout.addStretch()
             main_layout.addLayout(controls_layout)
 
+            self.tasks_label = QLabel(get_text("Lista Global de Tarefas:"), self)
+            main_layout.addWidget(self.tasks_label)
+
             self.tasks_list = QListWidget(self)
-            self.tasks_list.setSelectionMode(QAbstractItemView.NoSelection)
+            self.tasks_list.setSelectionMode(QAbstractItemView.SingleSelection)
+            self.tasks_list.setMouseTracking(True)
             self.tasks_list.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+            self.tasks_list.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.tasks_list.customContextMenuRequested.connect(lambda pt: show_context_menu(self.app, pt, self.tasks_list))
+
+            try:
+                self.tasks_list.itemDoubleClicked.connect(self._open_linked_file)
+
+            except Exception:
+                pass
+
             main_layout.addWidget(self.tasks_list, 1)
 
             self.calendar.selectionChanged.connect(self.update_task_list)
@@ -229,6 +243,52 @@ class CalendarDialog(QDialog):
         except Exception as e:
             logger.error(f"Erro ao fechar CalendarDialog: {e}", exc_info=True)
 
+    def _open_linked_file(self, item):
+        try:
+            if item is None:
+                return
+
+            data = item.data(Qt.UserRole) or {}
+            path = data.get("file_path")
+            if not path:
+                return
+
+            import os, subprocess, sys
+
+            try:
+                if QDesktopServices.openUrl(QUrl.fromLocalFile(path)):
+                    return
+
+            except Exception:
+                pass
+
+            try:
+                if os.path.exists(path):
+                    if sys.platform.startswith("win"):
+                        os.startfile(path)
+                        return
+
+                    elif sys.platform.startswith("darwin"):
+                        subprocess.Popen(["open", path])
+                        return
+
+                    else:
+                        subprocess.Popen(["xdg-open", path])
+                        return
+
+            except Exception as e:
+                logger.error(f"Falha ao abrir arquivo vinculado via fallback: {e}", exc_info=True)
+
+            try:
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.warning(self, get_text("Erro"), get_text("Arquivo não encontrado."))
+
+            except Exception:
+                pass
+
+        except Exception as e:
+            logger.error(f"Erro ao abrir arquivo vinculado (Calendar): {e}", exc_info=True)
+
     def _collect_tasks(self):
         try:
             tasks = []
@@ -252,12 +312,18 @@ class CalendarDialog(QDialog):
                     text = data.get("text", item.text())
                     date_str = data.get("date")
                     time_str = data.get("time")
+                    file_path = data.get("file_path")
+                    description = data.get("description")
+                    priority = data.get("priority")
                     tasks.append({
                         "text": text,
                         "date": date_str,
                         "time": time_str,
                         "category": category,
-                        "completed": completed
+                        "completed": completed,
+                        "file_path": file_path,
+                        "description": description,
+                        "priority": priority,
                     })
 
             return tasks
@@ -318,7 +384,60 @@ class CalendarDialog(QDialog):
 
                 item_text = f"{dt_str} — {task['text']} — [{status_text}]"
                 item = QListWidgetItem(item_text)
-                item.setFlags((item.flags() & ~Qt.ItemIsSelectable) & ~Qt.ItemIsEnabled)
+                # Garantir que itens de tarefa estejam selecionáveis e habilitados
+                item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+
+                try:
+                    item.setData(Qt.UserRole, task)
+
+                except Exception:
+                    pass
+
+                try:
+                    fp = task.get("file_path")
+                    if fp:
+                        font = item.font() or QFont()
+                        font.setBold(True)
+                        item.setFont(font)
+                        try:
+                            item.setForeground(Qt.blue)
+
+                        except Exception:
+                            pass
+
+                except Exception:
+                    pass
+
+                try:
+                    tooltip_lines = []
+                    fp = task.get("file_path")
+                    if fp:
+                        tooltip_lines.append(f"{get_text('Arquivo') or 'Arquivo'}: {fp}")
+
+                    if date_str:
+                        tooltip_lines.append(f"{get_text('Data') or 'Data'}: {date_str}")
+
+                    if time_str:
+                        tooltip_lines.append(f"{get_text('Horário') or 'Horário'}: {time_str}")
+
+                    desc = task.get("description")
+                    if desc:
+                        tooltip_lines.append(f"{get_text('Descrição') or 'Descrição'}: {desc}")
+
+                    prio = task.get("priority")
+                    if prio is not None and prio != "":
+                        tooltip_lines.append(f"{get_text('Prioridade') or 'Prioridade'}: {prio}")
+
+                    if tooltip_lines:
+                        try:
+                            item.setToolTip("\n".join(tooltip_lines))
+
+                        except Exception:
+                            pass
+
+                except Exception:
+                    pass
+
                 self.tasks_list.addItem(item)
 
         except Exception as e:
@@ -344,6 +463,13 @@ class CalendarDialog(QDialog):
             self.filter_combo.setItemText(0, get_text("Dia"))
             self.filter_combo.setItemText(1, get_text("Semana"))
             self.filter_combo.setItemText(2, get_text("Mês"))
+
+            try:
+                self.tasks_label.setText(get_text("Lista Global de Tarefas:"))
+
+            except Exception:
+                pass
+
             self._date_format = self.app.date_input.displayFormat() if hasattr(self.app, "date_input") else self._date_format
 
             self._apply_locale_to_calendar()
@@ -529,9 +655,22 @@ class CalendarPanel(QWidget):
             controls_layout.addStretch()
             main_layout.addLayout(controls_layout)
 
+            self.tasks_label = QLabel(get_text("Lista Global de Tarefas:"), self)
+            main_layout.addWidget(self.tasks_label)
+
             self.tasks_list = QListWidget(self)
-            self.tasks_list.setSelectionMode(QAbstractItemView.NoSelection)
+            self.tasks_list.setSelectionMode(QAbstractItemView.SingleSelection)
+            self.tasks_list.setMouseTracking(True)
             self.tasks_list.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+            self.tasks_list.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.tasks_list.customContextMenuRequested.connect(lambda pt: show_context_menu(self.app, pt, self.tasks_list))
+
+            try:
+                self.tasks_list.itemDoubleClicked.connect(lambda item: CalendarDialog._open_linked_file(self, item))
+
+            except Exception:
+                pass
+
             main_layout.addWidget(self.tasks_list, 1)
 
             self.calendar.selectionChanged.connect(self.update_task_list)
@@ -586,6 +725,13 @@ class CalendarPanel(QWidget):
             self.filter_combo.setItemText(0, get_text("Dia"))
             self.filter_combo.setItemText(1, get_text("Semana"))
             self.filter_combo.setItemText(2, get_text("Mês"))
+
+            try:
+                self.tasks_label.setText(get_text("Lista Global de Tarefas:"))
+
+            except Exception:
+                pass
+
             self._date_format = self.app.date_input.displayFormat() if hasattr(self.app, "date_input") else self._date_format
             self._apply_locale_to_calendar()
             self.update_task_list()

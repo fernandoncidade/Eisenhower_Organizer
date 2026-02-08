@@ -1,6 +1,7 @@
 import os
 from PySide6.QtCore import QCoreApplication, Qt, QTimer
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QPushButton
+from PySide6.QtGui import QFont
 from source.utils.IconUtils import get_icon_path
 from source.utils.CaminhoPersistenteUtils import obter_caminho_persistente
 from source.language.tr_01_gerenciadorTraducao import GerenciadorTraducao
@@ -121,6 +122,62 @@ class EisenhowerMatrixApp(QMainWindow):
         data = item.data(Qt.UserRole) or {}
         time_str = data.get("time")
         if not time_str:
+            try:
+                tooltip_lines = []
+                fp = data.get("file_path")
+                if fp:
+                    tooltip_lines.append((get_text("Arquivo") or "Arquivo") + f": {fp}")
+                    try:
+                        font = item.font() or QFont()
+                        font.setBold(True)
+                        item.setFont(font)
+
+                        try:
+                            item.setForeground(Qt.blue)
+
+                        except Exception:
+                            pass
+
+                    except Exception:
+                        pass
+
+                ds = data.get("date")
+                if ds:
+                    try:
+                        from PySide6.QtCore import QDate
+                        qd = QDate.fromString(ds, Qt.ISODate)
+                        if qd.isValid() and hasattr(self, "date_input"):
+                            date_human = qd.toString(self.date_input.displayFormat())
+
+                        else:
+                            date_human = ds
+
+                    except Exception:
+                        date_human = ds
+
+                    tooltip_lines.append((get_text("Data") or "Data") + f": {date_human}")
+
+                if time_str:
+                    tooltip_lines.append((get_text("Horário") or "Horário") + f": {time_str}")
+
+                desc = data.get("description")
+                if desc:
+                    tooltip_lines.append((get_text("Descrição") or "Descrição") + f": {desc}")
+
+                prio = data.get("priority")
+                if prio is not None and prio != "":
+                    tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+
+                if tooltip_lines:
+                    try:
+                        item.setToolTip("\n".join(tooltip_lines))
+
+                    except Exception:
+                        pass
+
+            except Exception:
+                pass
+
             lst.addItem(item)
             return
 
@@ -190,6 +247,62 @@ class EisenhowerMatrixApp(QMainWindow):
                 pos = i
                 break
 
+        try:
+            tooltip_lines = []
+            fp = data.get("file_path")
+            if fp:
+                tooltip_lines.append((get_text("Arquivo") or "Arquivo") + f": {fp}")
+                try:
+                    font = item.font() or QFont()
+                    font.setBold(True)
+                    item.setFont(font)
+
+                    try:
+                        item.setForeground(Qt.blue)
+
+                    except Exception:
+                        pass
+
+                except Exception:
+                    pass
+
+            ds = data.get("date")
+            if ds:
+                try:
+                    from PySide6.QtCore import QDate
+                    qd = QDate.fromString(ds, Qt.ISODate)
+                    if qd.isValid() and hasattr(self, "date_input"):
+                        date_human = qd.toString(self.date_input.displayFormat())
+
+                    else:
+                        date_human = ds
+
+                except Exception:
+                    date_human = ds
+
+                tooltip_lines.append((get_text("Data") or "Data") + f": {date_human}")
+
+            if time_str:
+                tooltip_lines.append((get_text("Horário") or "Horário") + f": {time_str}")
+
+            desc = data.get("description")
+            if desc:
+                tooltip_lines.append((get_text("Descrição") or "Descrição") + f": {desc}")
+
+            prio = data.get("priority")
+            if prio is not None and prio != "":
+                tooltip_lines.append((get_text("Prioridade") or "Prioridade") + f": {prio}")
+
+            if tooltip_lines:
+                try:
+                    item.setToolTip("\n".join(tooltip_lines))
+
+                except Exception:
+                    pass
+
+        except Exception:
+            pass
+
         lst.insertItem(pos, item)
 
     def cleanup_time_groups(self, lst):
@@ -233,8 +346,14 @@ class EisenhowerMatrixApp(QMainWindow):
     def move_item_between_lists(self, item, source, target, new_check_state):
         ui_move_item_between_lists(self, item, source, target, new_check_state)
 
-    def remove_task(self, item, list_widget):
-        ui_remove_task(self, item, list_widget)
+    def remove_task(self, item, list_widget, confirm: bool = True):
+        try:
+            removed = ui_remove_task(self, item, list_widget, confirm)
+
+        except Exception as e:
+            logger.error(f"Erro ao chamar utilitário remove_task: {e}", exc_info=True)
+            removed = False
+
         try:
             self.cleanup_time_groups(list_widget)
             if hasattr(self, "calendar_pane") and self.calendar_pane:
@@ -242,6 +361,8 @@ class EisenhowerMatrixApp(QMainWindow):
 
         except Exception as e:
             logger.error(f"Erro ao remover tarefa: {e}", exc_info=True)
+
+        return removed
 
     def save_tasks(self):
         ui_save_tasks(self)
