@@ -1,3 +1,30 @@
+NOTAS DE LANÇAMENTO: Versão 0.1.2.0
+Data: 2 de fevereiro de 2026
+
+Principais novidades:
+- Melhorias na integração entre calendário e listas: sincronização mais confiável ao adicionar/editar/remover tarefas, evitando itens órfãos e atualizando badges imediatamente.
+- Tooltips enriquecidos e ordenados: pré-visualizações mostram arquivo vinculado, data, horário, descrição resumida e prioridade de forma mais legível.
+- Abertura de arquivos vinculados mais robusta: tentativas via mecanismo nativo da plataforma como fallback e mensagens de erro mais claras ao usuário.
+- Menu de contexto do calendário e das listas aprimorado: edição, movimentação entre quadrantes e remoção (individual ou em lote para um dia) com confirmações e reaproveitamento seguro de diálogos.
+- Melhor comportamento do painel de calendário: alternância mais suave e redimensionamento previsível da janela principal ao expandir/recolher o painel.
+- Localidade aplicada de forma mais consistente: calendar popups e seletores de data/hora respeitam o idioma ativo e atualizam formatos dinamicamente.
+- Destaques visuais aprimorados: dias com tarefas recebem fundo semitransparente e itens com arquivo vinculado são destacados em negrito/azul para facilitar identificação.
+- Robustez e diagnósticos: maior tolerância a erros em operações sensíveis e logging ampliado para facilitar investigação sem interromper o uso.
+
+Correções e ajustes importantes:
+- Corrige inconsistências ao localizar tarefas originais a partir do calendário (edição/removal via menu).
+- Evita duplicação ou perda de itens durante movimentos entre listas e operações de edição de data/horário.
+- Ajustes na detecção da data pelo cursor para tooltips mais precisos em diferentes versões do Qt.
+- Limpeza reforçada de cabeçalhos de horário vazios após remoções ou edições.
+
+Observações:
+- Nenhum formato de arquivo ou mecanismo de salvamento foi alterado; os dados permanecem armazenados localmente.
+- O aplicativo mantém operação totalmente offline — nenhum dado é enviado a servidores externos.
+
+
+______________________________
+
+
 NOTAS DE LANÇAMENTO: Versão 0.1.1.0
 Data: 1 de fevereiro de 2026
 

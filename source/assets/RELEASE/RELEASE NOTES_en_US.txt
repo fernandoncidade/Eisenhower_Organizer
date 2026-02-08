@@ -1,3 +1,30 @@
+RELEASE NOTES: Version 0.1.2.0
+Date: February 2, 2026
+
+What's new:
+- Improved integration between the calendar and lists: more reliable synchronization when adding/editing/removing tasks, preventing orphaned items and updating badges immediately.
+- Enhanced and ordered tooltips: previews show linked file, date, time, brief description and priority in a clearer layout.
+- More robust opening of linked files: attempts via the platform's native mechanism as a fallback and clearer error messages for the user.
+- Improved context menu for the calendar and lists: edit, move between quadrants and removal (individual or batch for a day) with confirmations and safe dialog reuse.
+- Better calendar panel behavior: smoother toggling and predictable main window resizing when expanding/collapsing the panel.
+- Locale applied more consistently: calendar popups and date/time pickers respect the active language and update formats dynamically.
+- Enhanced visual highlights: days with tasks receive a semi-transparent background and items with a linked file are emphasized in bold/blue for easier identification.
+- Robustness and diagnostics: increased fault tolerance in sensitive operations and expanded logging to aid investigation without interrupting use.
+
+Fixes and important adjustments:
+- Fixes inconsistencies when locating original tasks from the calendar (edit/removal via menu).
+- Prevents duplication or loss of items during moves between lists and during date/time edit operations.
+- Adjustments to date detection under the cursor for more accurate tooltips across different Qt versions.
+- Reinforced cleanup of empty time headers after removals or edits.
+
+Notes:
+- No file format or storage mechanism was changed; data remains stored locally.
+- The application remains fully offline — no data is sent to external servers.
+
+
+______________________________
+
+
 RELEASE NOTES: Version 0.1.1.0
 Date: February 1, 2026
 

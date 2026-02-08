@@ -415,5 +415,13 @@
         <source>Editar data/horário...</source>
         <translation>Editar data/horário...</translation>
     </message>
+    <message>
+        <source>Remover Todas</source>
+        <translation>Remover Todas</translation>
+    </message>
+    <message>
+        <source>Deseja remover todas as tarefas deste dia?</source>
+        <translation>Deseja remover todas as tarefas deste dia?</translation>
+    </message>
 </context>
 </TS>

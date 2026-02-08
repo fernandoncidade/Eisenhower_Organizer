@@ -217,6 +217,212 @@ def _build_display_and_tooltip(app, base_text: str, date_iso: str | None, time_s
 
     return display_text, ("\n".join(tooltip_lines) if tooltip_lines else "")
 
+def edit_task_dialog(app, item):
+    try:
+        class EditTaskDialog(QDialog):
+            def __init__(self, parent=None, initial_text="", initial_file="", initial_description=""):
+                super().__init__(parent or app)
+                self.setModal(True)
+                self.setWindowTitle(get_text("Editar Tarefa") or "Editar Tarefa")
+                layout = QVBoxLayout(self)
+
+                layout.addWidget(QLabel(get_text("Tarefa:")))
+                self.title = QLineEdit(self)
+                self.title.setText(initial_text or "")
+                layout.addWidget(self.title)
+
+                layout.addWidget(QLabel(get_text("Arquivo vinculado (arraste ou escolha):")))
+                hl = QHBoxLayout()
+                self.file_field = FileDropLineEdit(app, self)
+                self.file_field.setText(initial_file and (initial_file.split("\\")[-1] or initial_file) or "")
+                self.file_field.setToolTip(initial_file or "")
+                hl.addWidget(self.file_field)
+                btn_choose = QPushButton(get_text("Escolher..."))
+
+                def _choose():
+                    try:
+                        path, _ = QFileDialog.getOpenFileName(self, get_text("Escolher arquivo"), "", "*")
+                        if path:
+                            self.file_field.setText(path.split("\\")[-1])
+                            self.file_field.setToolTip(path)
+
+                    except Exception:
+                        pass
+
+                btn_choose.clicked.connect(_choose)
+                btn_clear = QPushButton(get_text("Remover"))
+
+                def _clear():
+                    try:
+                        self.file_field.clear()
+                        self.file_field.setToolTip("")
+
+                    except Exception:
+                        pass
+
+                btn_clear.clicked.connect(_clear)
+                hl.addWidget(btn_choose)
+                hl.addWidget(btn_clear)
+                layout.addLayout(hl)
+
+                layout.addWidget(QLabel(get_text("Descrição (opcional):")))
+                self.desc = QTextEdit(self)
+                self.desc.setPlainText(initial_description or "")
+                self.desc.setMinimumHeight(120)
+                layout.addWidget(self.desc)
+
+                btns = QHBoxLayout()
+                btns.addStretch(1)
+                btn_cancel = QPushButton(get_text("Cancelar") or "Cancelar")
+                btn_ok = QPushButton(get_text("OK") or "OK")
+                btn_cancel.clicked.connect(self.reject)
+                btn_ok.clicked.connect(self.accept)
+                btns.addWidget(btn_cancel)
+                btns.addWidget(btn_ok)
+                layout.addLayout(btns)
+
+            def get_values(self):
+                fp = self.file_field.toolTip() or None
+                return self.title.text().strip(), fp, self.desc.toPlainText().strip()
+
+        data = item.data(Qt.UserRole) or {}
+
+        try:
+            src_list = None
+            src_item = None
+            if isinstance(data, dict) and data.get("category"):
+                src_list, src_item = _find_source_item_for_calendar(app, data)
+                if src_item is None:
+                    src_list = item.listWidget()
+                    src_item = item
+
+            else:
+                src_list = item.listWidget()
+                src_item = item
+
+        except Exception:
+            src_list = item.listWidget()
+            src_item = item
+
+        initial_text = data.get("text") or _base_text_from_item(item)
+        initial_file = data.get("file_path") or ""
+        initial_desc = data.get("description") or ""
+
+        dlg = EditTaskDialog(parent=app, initial_text=initial_text, initial_file=initial_file, initial_description=initial_desc)
+        if dlg.exec() != QDialog.Accepted:
+            return
+
+        new_text, new_file_path, new_desc = dlg.get_values()
+        if not new_text:
+            return
+
+        new_data = dict(data) if isinstance(data, dict) else {}
+        new_data["text"] = new_text
+        if new_file_path:
+            new_data["file_path"] = new_file_path
+
+        else:
+            new_data.pop("file_path", None)
+
+        if new_desc:
+            new_data["description"] = new_desc
+
+        else:
+            new_data.pop("description", None)
+
+        date_iso = new_data.get("date")
+        time_str = new_data.get("time")
+
+        display_text, _dt_tooltip = _build_display_and_tooltip(app, new_text, date_iso, time_str)
+        tooltip_lines = []
+        if _dt_tooltip:
+            tooltip_lines.append(_dt_tooltip)
+
+        try:
+            fp = new_data.get("file_path")
+            if fp:
+                tooltip_lines.append((get_text("Arquivo") or "Arquivo") + f": {fp}")
+
+        except Exception:
+            pass
+
+        try:
+            desc_full = new_data.get("description")
+            if desc_full:
+                preview_lines = [ln for ln in desc_full.splitlines() if ln.strip()]
+                preview = "\n".join(preview_lines[:3])
+                if preview:
+                    tooltip_lines.append((get_text("Descrição") or "Descrição") + ":")
+                    tooltip_lines.append(preview)
+
+        except Exception:
+            pass
+
+        tooltip = "\n".join(tooltip_lines) if tooltip_lines else ""
+        if isinstance(new_data, dict):
+            try:
+                if new_data.get("file_path"):
+                    font = item.font() or QFont()
+                    font.setBold(True)
+
+            except Exception:
+                pass
+
+        lst = src_list if src_list is not None else item.listWidget()
+        if lst is None:
+            return
+
+        row = lst.row(src_item if src_item is not None else item)
+        check_state = (src_item if src_item is not None else item).checkState()
+        lst.takeItem(row)
+
+        from PySide6.QtWidgets import QListWidgetItem
+        new_item = QListWidgetItem(display_text)
+        new_item.setFlags(new_item.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+        new_item.setCheckState(check_state)
+        new_item.setData(Qt.UserRole, new_data)
+        if tooltip:
+            new_item.setToolTip(tooltip)
+
+        try:
+            if new_data.get("file_path"):
+                font = new_item.font() or QFont()
+                font.setBold(True)
+                new_item.setFont(font)
+                new_item.setForeground(Qt.blue)
+
+        except Exception:
+            pass
+
+        if hasattr(app, "insert_task_into_quadrant_list"):
+            app.insert_task_into_quadrant_list(lst, new_item)
+
+        else:
+            lst.addItem(new_item)
+
+        try:
+            if hasattr(app, "cleanup_time_groups"):
+                app.cleanup_time_groups(lst)
+
+        except Exception:
+            pass
+
+        try:
+            app.save_tasks()
+
+        except Exception:
+            pass
+
+        try:
+            if hasattr(app, "calendar_pane") and app.calendar_pane:
+                app.calendar_pane.calendar_panel.update_task_list()
+
+        except Exception:
+            pass
+
+    except Exception as e:
+        logger.error(f"Erro ao editar tarefa via menu: {e}", exc_info=True)
+
 def _edit_date_time_dialog(app, item):
     try:
         data = item.data(Qt.UserRole) or {}
@@ -728,210 +934,7 @@ def mostrar_menu_contexto(app, point, list_widget):
             pass
 
         def _edit_task():
-            try:
-                class EditTaskDialog(QDialog):
-                    def __init__(self, parent=None, initial_text="", initial_file="", initial_description=""):
-                        super().__init__(parent or app)
-                        self.setModal(True)
-                        self.setWindowTitle(get_text("Editar Tarefa") or "Editar Tarefa")
-                        layout = QVBoxLayout(self)
-
-                        layout.addWidget(QLabel(get_text("Tarefa:")))
-                        self.title = QLineEdit(self)
-                        self.title.setText(initial_text or "")
-                        layout.addWidget(self.title)
-
-                        layout.addWidget(QLabel(get_text("Arquivo vinculado (arraste ou escolha):")))
-                        hl = QHBoxLayout()
-                        self.file_field = FileDropLineEdit(app, self)
-                        self.file_field.setText(initial_file and (initial_file.split("\\")[-1] or initial_file) or "")
-                        self.file_field.setToolTip(initial_file or "")
-                        hl.addWidget(self.file_field)
-                        btn_choose = QPushButton(get_text("Escolher..."))
-
-                        def _choose():
-                            try:
-                                path, _ = QFileDialog.getOpenFileName(self, get_text("Escolher arquivo"), "", "*")
-                                if path:
-                                    self.file_field.setText(path.split("\\")[-1])
-                                    self.file_field.setToolTip(path)
-
-                            except Exception:
-                                pass
-
-                        btn_choose.clicked.connect(_choose)
-                        btn_clear = QPushButton(get_text("Remover"))
-
-                        def _clear():
-                            try:
-                                self.file_field.clear()
-                                self.file_field.setToolTip("")
-
-                            except Exception:
-                                pass
-
-                        btn_clear.clicked.connect(_clear)
-                        hl.addWidget(btn_choose)
-                        hl.addWidget(btn_clear)
-                        layout.addLayout(hl)
-
-                        layout.addWidget(QLabel(get_text("Descrição (opcional):")))
-                        self.desc = QTextEdit(self)
-                        self.desc.setPlainText(initial_description or "")
-                        self.desc.setMinimumHeight(120)
-                        layout.addWidget(self.desc)
-
-                        btns = QHBoxLayout()
-                        btns.addStretch(1)
-                        btn_cancel = QPushButton(get_text("Cancelar") or "Cancelar")
-                        btn_ok = QPushButton(get_text("OK") or "OK")
-                        btn_cancel.clicked.connect(self.reject)
-                        btn_ok.clicked.connect(self.accept)
-                        btns.addWidget(btn_cancel)
-                        btns.addWidget(btn_ok)
-                        layout.addLayout(btns)
-
-                    def get_values(self):
-                        fp = self.file_field.toolTip() or None
-                        return self.title.text().strip(), fp, self.desc.toPlainText().strip()
-
-                data = item.data(Qt.UserRole) or {}
-
-                try:
-                    src_list = None
-                    src_item = None
-                    if isinstance(data, dict) and data.get("category"):
-                        src_list, src_item = _find_source_item_for_calendar(app, data)
-                        if src_item is None:
-                            src_list = item.listWidget()
-                            src_item = item
-
-                    else:
-                        src_list = item.listWidget()
-                        src_item = item
-
-                except Exception:
-                    src_list = item.listWidget()
-                    src_item = item
-
-                initial_text = data.get("text") or _base_text_from_item(item)
-                initial_file = data.get("file_path") or ""
-                initial_desc = data.get("description") or ""
-
-                dlg = EditTaskDialog(parent=app, initial_text=initial_text, initial_file=initial_file, initial_description=initial_desc)
-                if dlg.exec() != QDialog.Accepted:
-                    return
-
-                new_text, new_file_path, new_desc = dlg.get_values()
-                if not new_text:
-                    return
-
-                new_data = dict(data) if isinstance(data, dict) else {}
-                new_data["text"] = new_text
-                if new_file_path:
-                    new_data["file_path"] = new_file_path
-
-                else:
-                    new_data.pop("file_path", None)
-
-                if new_desc:
-                    new_data["description"] = new_desc
-
-                else:
-                    new_data.pop("description", None)
-
-                date_iso = new_data.get("date")
-                time_str = new_data.get("time")
-
-                display_text, _dt_tooltip = _build_display_and_tooltip(app, new_text, date_iso, time_str)
-                tooltip_lines = []
-                if _dt_tooltip:
-                    tooltip_lines.append(_dt_tooltip)
-
-                try:
-                    fp = new_data.get("file_path")
-                    if fp:
-                        tooltip_lines.append((get_text("Arquivo") or "Arquivo") + f": {fp}")
-
-                except Exception:
-                    pass
-
-                try:
-                    desc_full = new_data.get("description")
-                    if desc_full:
-                        preview_lines = [ln for ln in desc_full.splitlines() if ln.strip()]
-                        preview = "\n".join(preview_lines[:3])
-                        if preview:
-                            tooltip_lines.append((get_text("Descrição") or "Descrição") + ":")
-                            tooltip_lines.append(preview)
-
-                except Exception:
-                    pass
-
-                tooltip = "\n".join(tooltip_lines) if tooltip_lines else ""
-                if isinstance(new_data, dict):
-                    try:
-                        if new_data.get("file_path"):
-                            font = item.font() or QFont()
-                            font.setBold(True)
-
-                    except Exception:
-                        pass
-
-                lst = src_list if src_list is not None else item.listWidget()
-                if lst is None:
-                    return
-
-                row = lst.row(src_item if src_item is not None else item)
-                check_state = (src_item if src_item is not None else item).checkState()
-                lst.takeItem(row)
-
-                from PySide6.QtWidgets import QListWidgetItem
-                new_item = QListWidgetItem(display_text)
-                new_item.setFlags(new_item.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-                new_item.setCheckState(check_state)
-                new_item.setData(Qt.UserRole, new_data)
-                if tooltip:
-                    new_item.setToolTip(tooltip)
-
-                try:
-                    if new_data.get("file_path"):
-                        font = new_item.font() or QFont()
-                        font.setBold(True)
-                        new_item.setFont(font)
-                        new_item.setForeground(Qt.blue)
-
-                except Exception:
-                    pass
-
-                if hasattr(app, "insert_task_into_quadrant_list"):
-                    app.insert_task_into_quadrant_list(lst, new_item)
-
-                else:
-                    lst.addItem(new_item)
-
-                try:
-                    if hasattr(app, "cleanup_time_groups"):
-                        app.cleanup_time_groups(lst)
-
-                except Exception:
-                    pass
-
-                try:
-                    app.save_tasks()
-
-                except Exception:
-                    pass
-
-                try:
-                    if hasattr(app, "calendar_pane") and app.calendar_pane:
-                        app.calendar_pane.calendar_panel.update_task_list()
-
-                except Exception:
-                    pass
-
-            except Exception as e:
-                logger.error(f"Erro ao editar tarefa via menu: {e}", exc_info=True)
+            edit_task_dialog(app, item)
 
         editar_data_acao = QAction(get_text("Editar data/horário..."), app)
         editar_data_acao.triggered.connect(lambda: _edit_date_time_dialog(app, item))

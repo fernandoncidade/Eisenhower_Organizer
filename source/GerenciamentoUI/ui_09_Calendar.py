@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QCalendarWidget, QComboBox, QListWidget,
                                QListWidgetItem, QCheckBox, QLabel, QHBoxLayout, QAbstractItemView,
-                               QWidget, QSizePolicy, QStyle, QStyleOptionFrame, QToolTip)
+                               QWidget, QSizePolicy, QStyle, QStyleOptionFrame, QToolTip, QMenu,
+                               QInputDialog, QMessageBox)
 from PySide6.QtCore import Qt, QDate, QCoreApplication, QLocale, QSize, QEvent, QRect, QObject, QUrl
 from PySide6.QtGui import QPainter, QFontMetrics, QTextCharFormat, QBrush, QColor, QFont, QPen, QPalette, QDesktopServices
-from source.InterfaceCore.incore_07_show_context_menu import show_context_menu
+from source.InterfaceCore.incore_07_show_context_menu import show_context_menu, _find_source_item_for_calendar, edit_task_dialog
 from source.InterfaceCore.incore_13_prioridade_display import prioridade_para_texto
 from source.utils.LogManager import LogManager
 from collections import defaultdict
@@ -11,6 +12,41 @@ logger = LogManager.get_logger()
 
 def get_text(text):
     return QCoreApplication.translate("InterfaceGrafica", text)
+
+def _emoji_from_priority(prio) -> str:
+    try:
+        label = prioridade_para_texto(prio, None)
+        if label:
+            emoji = str(label).strip()[:1]
+            if emoji in {"🔴", "🟠", "🟡", "🟢"}:
+                return emoji
+
+    except Exception:
+        pass
+
+    return ""
+
+def _task_label_for_day(task: dict, show_priority: bool) -> str:
+    text = (task.get("text") or "").strip()
+    time_str = task.get("time") or ""
+    status_text = get_text("Concluída") if task.get("completed") else get_text("Pendente")
+    emoji = _emoji_from_priority(task.get("priority")) if show_priority else ""
+    if time_str:
+        return f"{emoji} {time_str} — {text} [{status_text}]".strip()
+
+    return f"{emoji} {text} [{status_text}]".strip()
+
+def _tasks_for_date(owner, qdate: QDate) -> list[dict]:
+    try:
+        if qdate is None or not qdate.isValid():
+            return []
+
+        iso = qdate.toString(Qt.ISODate)
+        tasks_all = owner._collect_tasks() if hasattr(owner, "_collect_tasks") else []
+        return [t for t in tasks_all if t.get("date") == iso]
+
+    except Exception:
+        return []
 
 
 class BadgeCalendarWidget(QCalendarWidget):
@@ -254,6 +290,8 @@ class CalendarDialog(QDialog):
             self.calendar = BadgeCalendarWidget(self)
             initial_date = app.date_input.date() if hasattr(app, "date_input") else QDate.currentDate()
             self.calendar.setSelectedDate(initial_date)
+            self.calendar.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.calendar.customContextMenuRequested.connect(self._on_calendar_context_menu)
 
             hint = self.calendar.minimumSizeHint()
             fallback = QSize(300, 260)
@@ -585,6 +623,216 @@ class CalendarDialog(QDialog):
         except Exception as e:
             logger.error(f"Erro ao atualizar lista de tarefas do calendário: {e}", exc_info=True)
 
+    def _on_calendar_context_menu(self, pos):
+        try:
+            qd = None
+            if hasattr(self.calendar, "_date_at_pos"):
+                qd = self.calendar._date_at_pos(pos)
+
+            if qd is None or not qd.isValid():
+                return
+
+            tasks = _tasks_for_date(self, qd)
+
+            show_priority = True
+            try:
+                show_priority = bool(getattr(self, "show_priority_checkbox", None) and self.show_priority_checkbox.isChecked())
+
+            except Exception:
+                show_priority = True
+
+            menu = QMenu(self.calendar)
+            edit_menu = menu.addMenu(get_text("Editar Tarefa...") or "Editar Tarefa...")
+            remove_menu = menu.addMenu(get_text("Remover Tarefa") or "Remover Tarefa")
+
+            def _edit_task_from_calendar(task):
+                src_list, item = _find_source_item_for_calendar(self.app, task)
+                if item is None or src_list is None:
+                    QMessageBox.warning(self, get_text("Editar Tarefa"), get_text("Tarefa não encontrada."))
+                    return
+
+                try:
+                    edit_task_dialog(self.app, item)
+
+                except Exception:
+                    pass
+
+                self.update_task_list()
+
+            def _remove_task_from_calendar(task):
+                src_list, item = _find_source_item_for_calendar(self.app, task)
+                if item is None or src_list is None:
+                    QMessageBox.warning(self, get_text("Remover Tarefa"), get_text("Tarefa não encontrada."))
+                    return
+
+                try:
+                    self.app.remove_task(item, src_list, confirm=False)
+
+                except Exception:
+                    pass
+
+                self.update_task_list()
+
+            if not tasks:
+                edit_menu.setEnabled(False)
+                remove_menu.setEnabled(False)
+
+            else:
+                for task in tasks:
+                    label = _task_label_for_day(task, show_priority)
+                    act_edit = edit_menu.addAction(label)
+                    act_edit.triggered.connect(lambda checked=False, t=task: _edit_task_from_calendar(t))
+
+                for task in tasks:
+                    label = _task_label_for_day(task, show_priority)
+                    act_remove = remove_menu.addAction(label)
+                    act_remove.triggered.connect(lambda checked=False, t=task: _remove_task_from_calendar(t))
+
+                remove_menu.addSeparator()
+                act_remove_all = remove_menu.addAction(get_text("Remover Todas") or "Remover Todas")
+
+                def _remove_all_tasks():
+                    confirm = QMessageBox.question(
+                        self,
+                        get_text("Remover Todas") or "Remover Todas",
+                        get_text("Deseja remover todas as tarefas deste dia?") or "Deseja remover todas as tarefas deste dia?",
+                        QMessageBox.Yes | QMessageBox.No,
+                    )
+                    if confirm != QMessageBox.Yes:
+                        return
+
+                    for task in list(tasks):
+                        src_list, item = _find_source_item_for_calendar(self.app, task)
+                        if item is None or src_list is None:
+                            continue
+
+                        try:
+                            self.app.remove_task(item, src_list, confirm=False)
+
+                        except Exception:
+                            pass
+
+                    self.update_task_list()
+
+                act_remove_all.triggered.connect(_remove_all_tasks)
+
+            menu.exec(self.calendar.mapToGlobal(pos))
+
+        except Exception as e:
+            logger.error(f"Erro ao abrir menu de contexto do calendário: {e}", exc_info=True)
+
+    def _prompt_edit_task_for_date(self, qdate: QDate):
+        try:
+            tasks = _tasks_for_date(self, qdate)
+            if not tasks:
+                QMessageBox.information(self, get_text("Editar Tarefa"), get_text("Nenhuma tarefa para este dia."))
+                return
+
+            show_priority = True
+            try:
+                show_priority = bool(getattr(self, "show_priority_checkbox", None) and self.show_priority_checkbox.isChecked())
+
+            except Exception:
+                show_priority = True
+
+            items = [f"{i + 1}. {_task_label_for_day(task, show_priority)}" for i, task in enumerate(tasks)]
+            choice, ok = QInputDialog.getItem(
+                self,
+                get_text("Editar Tarefa") or "Editar Tarefa",
+                get_text("Selecione a tarefa") or "Selecione a tarefa",
+                items,
+                0,
+                False,
+            )
+            if not ok or not choice:
+                return
+
+            idx = items.index(choice)
+            task = tasks[idx]
+            src_list, item = _find_source_item_for_calendar(self.app, task)
+            if item is None or src_list is None:
+                QMessageBox.warning(self, get_text("Editar Tarefa"), get_text("Tarefa não encontrada."))
+                return
+
+            try:
+                self.app.edit_task_datetime(item, src_list)
+
+            except Exception:
+                pass
+
+            self.update_task_list()
+
+        except Exception as e:
+            logger.error(f"Erro ao editar tarefa do calendário: {e}", exc_info=True)
+
+    def _prompt_remove_task_for_date(self, qdate: QDate):
+        try:
+            tasks = _tasks_for_date(self, qdate)
+            if not tasks:
+                QMessageBox.information(self, get_text("Remover Tarefa"), get_text("Nenhuma tarefa para este dia."))
+                return
+
+            show_priority = True
+            try:
+                show_priority = bool(getattr(self, "show_priority_checkbox", None) and self.show_priority_checkbox.isChecked())
+
+            except Exception:
+                show_priority = True
+
+            items = [f"{i + 1}. {_task_label_for_day(task, show_priority)}" for i, task in enumerate(tasks)]
+            items.append(get_text("Remover Todas") or "Remover Todas")
+
+            choice, ok = QInputDialog.getItem(
+                self,
+                get_text("Remover Tarefa") or "Remover Tarefa",
+                get_text("Selecione a tarefa") or "Selecione a tarefa",
+                items,
+                0,
+                False,
+            )
+            if not ok or not choice:
+                return
+
+            if choice == items[-1]:
+                confirm = QMessageBox.question(
+                    self,
+                    get_text("Remover Todas") or "Remover Todas",
+                    get_text("Deseja remover todas as tarefas deste dia?") or "Deseja remover todas as tarefas deste dia?",
+                    QMessageBox.Yes | QMessageBox.No,
+                )
+                if confirm != QMessageBox.Yes:
+                    return
+
+                for task in list(tasks):
+                    src_list, item = _find_source_item_for_calendar(self.app, task)
+                    if item is None or src_list is None:
+                        continue
+
+                    try:
+                        self.app.remove_task(item, src_list, confirm=False)
+
+                    except Exception:
+                        pass
+
+            else:
+                idx = items.index(choice)
+                task = tasks[idx]
+                src_list, item = _find_source_item_for_calendar(self.app, task)
+                if item is None or src_list is None:
+                    QMessageBox.warning(self, get_text("Remover Tarefa"), get_text("Tarefa não encontrada."))
+                    return
+
+                try:
+                    self.app.remove_task(item, src_list, confirm=False)
+
+                except Exception:
+                    pass
+
+            self.update_task_list()
+
+        except Exception as e:
+            logger.error(f"Erro ao remover tarefa do calendário: {e}", exc_info=True)
+
     def _update_badge_counts(self):
         try:
             task_dates = []
@@ -781,6 +1029,8 @@ class CalendarPanel(QWidget):
             self.calendar = BadgeCalendarWidget(self)
             initial_date = app.date_input.date() if hasattr(app, "date_input") else QDate.currentDate()
             self.calendar.setSelectedDate(initial_date)
+            self.calendar.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.calendar.customContextMenuRequested.connect(self._on_calendar_context_menu)
 
             hint = self.calendar.minimumSizeHint()
             fallback = QSize(300, 260)
@@ -905,6 +1155,27 @@ class CalendarPanel(QWidget):
 
         except Exception as e:
             logger.error(f"Erro ao aplicar locale ao calendário: {e}", exc_info=True)
+
+    def _on_calendar_context_menu(self, pos):
+        try:
+            return CalendarDialog._on_calendar_context_menu(self, pos)
+
+        except Exception as e:
+            logger.error(f"Erro ao abrir menu de contexto do calendário (painel): {e}", exc_info=True)
+
+    def _prompt_edit_task_for_date(self, qdate: QDate):
+        try:
+            return CalendarDialog._prompt_edit_task_for_date(self, qdate)
+
+        except Exception as e:
+            logger.error(f"Erro ao editar tarefa do calendário (painel): {e}", exc_info=True)
+
+    def _prompt_remove_task_for_date(self, qdate: QDate):
+        try:
+            return CalendarDialog._prompt_remove_task_for_date(self, qdate)
+
+        except Exception as e:
+            logger.error(f"Erro ao remover tarefa do calendário (painel): {e}", exc_info=True)
 
 
 class Calendar(QWidget):
