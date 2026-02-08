@@ -5,7 +5,7 @@ from source.utils.LogManager import LogManager
 logger = LogManager.get_logger()
 
 def get_text(text: str) -> str:
-    return QCoreApplication.translate("App", text)
+    return QCoreApplication.translate("InterfaceGrafica", text)
 
 def _effective_locale(app) -> QLocale:
     try:
